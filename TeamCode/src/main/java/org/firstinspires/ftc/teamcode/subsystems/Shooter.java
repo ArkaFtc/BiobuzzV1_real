@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.configurables.annotations.Configurable;
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.math.Pose;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.SimpleMotorFeedforward;
 import org.firstinspires.ftc.teamcode.utils.CachedServo;
 import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 
-@Configurable
+@Config
 public class Shooter {
 
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
@@ -48,9 +48,8 @@ public class Shooter {
     public static double hoodUpperBound = 0.85;
     private double baseHoodPosition = hoodLowerBound;
 
-    public static Pose RedGoalPose = new Pose(-70.25, 70.25);
-    public static Pose BlueGoalPose
-            = new Pose(-70.25, -70.25);
+    static Pose RedGoalPose = new Pose(-70.25, 70.25);
+    static Pose BlueGoalPose = new Pose(-70.25, -70.25);
 
     public enum Goal{
         RED (RedGoalPose),
@@ -215,7 +214,6 @@ public class Shooter {
             return Math.abs(shooterEncoder1.getVelocity());
         }
     }
-    @Configurable
     public static class Tables {
         private static final double[] DISTANCES = {
                 123.3, 127.1, 131.0, 134.2, 137.1,

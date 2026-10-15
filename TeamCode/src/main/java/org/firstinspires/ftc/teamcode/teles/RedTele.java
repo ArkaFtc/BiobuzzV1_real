@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOps;
+package org.firstinspires.ftc.teamcode.teles;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.Alliance;

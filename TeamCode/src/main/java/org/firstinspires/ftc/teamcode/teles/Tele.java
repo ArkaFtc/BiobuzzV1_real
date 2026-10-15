@@ -1,15 +1,13 @@
-package org.firstinspires.ftc.teamcode.teleOps;
-
-
-import com.bylazar.telemetry.JoinedTelemetry;
-import com.bylazar.telemetry.PanelsTelemetry;
+package org.firstinspires.ftc.teamcode.teles;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.math.Pose;
 import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
@@ -42,7 +40,7 @@ public class Tele extends OpMode {
             target = Shooter.Goal.RED;
             relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
         }
-        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = new Robot(hardwareMap, alliance);
         robot.update();
         headingPID = new PIDFController(1.4426, 0, 0.2179, 0);

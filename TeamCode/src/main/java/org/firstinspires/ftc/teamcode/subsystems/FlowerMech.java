@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.configurables.annotations.Configurable;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.CachedServo;
 
-@Configurable
+@Config
 
 public class FlowerMech {
     CachedServo flowerServo;
