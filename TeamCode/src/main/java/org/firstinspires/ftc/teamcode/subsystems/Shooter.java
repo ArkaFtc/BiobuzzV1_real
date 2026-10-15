@@ -87,7 +87,7 @@ public class Shooter {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        gate = new CachedServo(hardwareMap, "Gate");
+        gate = new CachedServo(hardwareMap, "gate");
 
         hood = hardwareMap.servo.get("hood");
 
