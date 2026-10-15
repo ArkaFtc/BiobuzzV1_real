@@ -1,0 +1,35 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.utils.CachedServo;
+
+@Configurable
+
+public class FlowerMech {
+    CachedServo flowerServo;
+
+
+    public static double flowerDownPos = 0.31;
+    public static double flowerIdlePos = 0.27;
+
+    public boolean isDown = false;
+
+    public FlowerMech(HardwareMap hardwareMap) {
+        flowerServo = new CachedServo(hardwareMap, "flowerServo");
+    }
+
+    public void update() {
+        flowerServo.update();
+    }
+
+    public void setFlowerArm(boolean down){
+        if (down){
+            flowerServo.setPosition(flowerDownPos);
+        } else {
+            flowerServo.setPosition(flowerIdlePos);
+        }
+        isDown = down;
+    }
+}
