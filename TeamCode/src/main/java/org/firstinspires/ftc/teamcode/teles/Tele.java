@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOps;
+package org.firstinspires.ftc.teamcode.teles;
 
 
 import com.bylazar.telemetry.JoinedTelemetry;
@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
@@ -59,10 +59,12 @@ public class Tele extends OpMode {
                     robot.shooter.setGate(false);
                 })
                 .loop(()->{
-                    if(gamepad1.left_trigger>0.8){
-                        robot.flowermech.setFlowerArm(true);
-                    }else{
-                        robot.flowermech.setFlowerArm(false);
+                    robot.flowermech.setFlowerArm(gamepad1.left_trigger > 0.8);
+                    if (gamepad1.options){
+                        robot.intake.setPower(-0.4);
+                    }
+                    else{
+                        robot.intake.setPower(1);
                     }
                 })
                 .transition(() -> gamepad1.a, States.HoldBalls)

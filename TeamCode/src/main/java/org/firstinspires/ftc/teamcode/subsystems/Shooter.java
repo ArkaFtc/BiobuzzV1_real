@@ -68,8 +68,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.68;
-    public static double upperGateClosedPos = 0.56;
+    public static double upperGateOpenPos = 0.46;
+    public static double upperGateClosedPos = 0.28;
 
 
     private double prevTargetVelocity = 0.0;

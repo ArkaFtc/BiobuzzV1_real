@@ -22,8 +22,8 @@ public class Intake {
     TouchSensor beamBreakball4;
 
     public static double currentLimit = 4;
-    public static double dropDownPos = 0.5;
-    public static double dropUpPos = 0.6;
+    public static double dropDownPos = 0.43;
+    public static double dropUpPos = 0.67;
     public boolean gateOpened = false;
     public double intakePower;
 
