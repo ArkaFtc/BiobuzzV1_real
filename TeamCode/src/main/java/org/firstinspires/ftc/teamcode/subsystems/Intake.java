@@ -52,11 +52,11 @@ public class Intake {
                 power = power * currentLimit / current;
             }
         }
-        front.set(power);
+        front.set(-power);
     }
 
     public void setTransferPower(double power){
-        transfer.set(power);
+        transfer.set(-power);
     }
 
 

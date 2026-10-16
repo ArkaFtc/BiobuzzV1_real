@@ -152,8 +152,8 @@ public class Shooter {
 
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
-        shooterCachedMotor1.set(power);
-        shooterCachedMotor2.set(-power);
+        shooterCachedMotor1.set(-power);
+        shooterCachedMotor2.set(power);
     }
 
     public void setHood(double pos){
