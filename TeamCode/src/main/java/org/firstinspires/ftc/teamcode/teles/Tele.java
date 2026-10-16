@@ -43,8 +43,7 @@ public class Tele extends OpMode {
             target = Shooter.Goal.RED;
             relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
         }
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        robot = new Robot(hardwareMap, alliance);
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());        robot = new Robot(hardwareMap, alliance);
         robot.update();
         headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
         secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);

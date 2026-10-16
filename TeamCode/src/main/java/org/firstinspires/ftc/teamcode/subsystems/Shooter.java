@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.SimpleMotorFeedforward;
 import org.firstinspires.ftc.teamcode.utils.CachedServo;
 import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 
-@Config
+@Configurable
 public class Shooter {
 
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
