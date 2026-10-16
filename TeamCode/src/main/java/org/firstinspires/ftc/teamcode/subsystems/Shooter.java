@@ -80,7 +80,7 @@ public class Shooter {
         shooterCachedMotor1 = new CachedMotor(hardwareMap, "shooterMotor1");
         shooterCachedMotor2 = new CachedMotor(hardwareMap, "shooterMotor2");
 
-        shooterEncoder1 = new CachedMotor(hardwareMap, "frontright");
+        shooterEncoder1 = new CachedMotor(hardwareMap, "shooterMotor1");
         shooterEncoder2 = new CachedMotor(hardwareMap, "shooterMotor2");
 
 
@@ -224,7 +224,7 @@ public class Shooter {
                 0.68, 0.66, 0.66, 0.66, 0.66,
                 0.66, 0.66, 0.63, 0.65, 0.75
         };
-
+        
         private static final double[] VELOCITY = {
                 1770, 1790, 1790, 1810, 1830,
                 1870, 1920, 1970, 2030, 2160
