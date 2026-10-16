@@ -43,7 +43,7 @@ public class FullTest extends LinearOpMode {
             shooter.setGate(upperGateOpen);
             shooter.setHood(hoodPos);
 
-            intake.update();
+
             flowermech.update();
             shooter.update();
 

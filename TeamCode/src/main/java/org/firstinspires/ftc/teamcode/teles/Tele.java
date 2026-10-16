@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teles;
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.Pose;
 import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -18,6 +20,7 @@ public class Tele extends OpMode {
     Robot robot;
     Alliance alliance;
     StateMachine stateMachine;
+    public static double targetVelo=1600;
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
     public static double hoodOffsetIncrements = 0.02;
@@ -57,10 +60,12 @@ public class Tele extends OpMode {
                     robot.shooter.setGate(false);
                 })
                 .loop(()->{
-                    if(gamepad1.left_trigger>0.8){
-                        robot.flowermech.setFlowerArm(true);
-                    }else{
-                        robot.flowermech.setFlowerArm(false);
+                    robot.flowermech.setFlowerArm(gamepad1.left_trigger > 0.8);
+                    if (gamepad1.options){
+                        robot.intake.setPower(-0.4);
+                    }
+                    else{
+                        robot.intake.setPower(1);
                     }
                 })
                 .transition(() -> gamepad1.a, States.HoldBalls)
@@ -105,27 +110,27 @@ public class Tele extends OpMode {
     public void loop() {
         robot.update();
         telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
-        robot.shooter.aimAtTarget(robot.follower.pose(), target);
+        robot.shooter.setTargetVelocity(targetVelo);
 
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double turn = gamepad1.right_stick_x;
 
-        if (!gamepad1.right_bumper) {
+        if (gamepad1.right_bumper) {
             forward *= 0.4;
             strafe *= 0.4;
             turn *= 0.4;
         }
-        robot.follower.manual(forward, strafe, turn);
+        robot.follower.manual(-forward, -strafe, -turn);
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
             Shooter.powerOffset = 0;
         }
 
-        if (gamepad2.dpadDownWasPressed())
-            Shooter.powerOffset -= powerOffsetIncrements;
-        if (gamepad2.dpadUpWasPressed())
-            Shooter.powerOffset += powerOffsetIncrements;
+        if (gamepad1.dpadDownWasPressed())
+            targetVelo -= powerOffsetIncrements;
+        if (gamepad1.dpadUpWasPressed())
+            targetVelo += powerOffsetIncrements;
         if (gamepad2.yWasPressed())
             Shooter.hoodOffset -= hoodOffsetIncrements;
         if (gamepad2.aWasPressed())

@@ -11,8 +11,8 @@ public class FlowerMech {
     CachedServo flowerServo;
 
 
-    public static double flowerDownPos = 0.31;
-    public static double flowerIdlePos = 0.27;
+    public static double flowerDownPos = 0.38;
+    public static double flowerIdlePos = 0;
 
     public boolean isDown = false;
 

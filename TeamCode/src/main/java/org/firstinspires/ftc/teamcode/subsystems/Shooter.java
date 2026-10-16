@@ -67,8 +67,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.68;
-    public static double upperGateClosedPos = 0.56;
+    public static double upperGateOpenPos = 0.46;
+    public static double upperGateClosedPos = 0.28;
 
 
     private double prevTargetVelocity = 0.0;
@@ -151,8 +151,8 @@ public class Shooter {
 
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
-        shooterCachedMotor1.set(power);
-        shooterCachedMotor2.set(-power);
+        shooterCachedMotor1.set(-power);
+        shooterCachedMotor2.set(power);
     }
 
     public void setHood(double pos){
