@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.testing;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FlowerMech;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Config
+@Configurable
 @TeleOp
 public class FullTest extends LinearOpMode {
     Intake intake;
@@ -27,7 +27,7 @@ public class FullTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         intake = new Intake(hardwareMap);
         flowermech = new FlowerMech(hardwareMap);
         shooter = new Shooter(hardwareMap);

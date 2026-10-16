@@ -43,7 +43,8 @@ public class Tele extends OpMode {
             target = Shooter.Goal.RED;
             relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
         }
-        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());        robot = new Robot(hardwareMap, alliance);
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+        robot = new Robot(hardwareMap, alliance);
         robot.update();
         headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
         secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
@@ -61,10 +62,12 @@ public class Tele extends OpMode {
                 .loop(()->{
                     robot.flowermech.setFlowerArm(gamepad1.left_trigger > 0.8);
                     if (gamepad1.options){
-                        robot.intake.setPower(-0.4);
+                        robot.intake.setPower(-0.6);
+                        robot.intake.setDropDown(false);
                     }
                     else{
                         robot.intake.setPower(1);
+                        robot.intake.setDropDown(true);
                     }
                 })
                 .transition(() -> gamepad1.a, States.HoldBalls)
@@ -74,7 +77,8 @@ public class Tele extends OpMode {
                 .state(States.HoldBalls)
                 .onEnter(()->{
                     robot.intake.setDropDown(false);
-                    robot.intake.setPower(0);
+                    robot.intake.setIntakePower(0.6);
+                    robot.intake.setTransferPower(0);
                     robot.shooter.setGate(false);
                 })
                 .transition(() -> gamepad1.y, States.Intake)
@@ -134,7 +138,6 @@ public class Tele extends OpMode {
             Shooter.hoodOffset -= hoodOffsetIncrements;
         if (gamepad2.aWasPressed())
             Shooter.hoodOffset += hoodOffsetIncrements;
-
         stateMachine.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
