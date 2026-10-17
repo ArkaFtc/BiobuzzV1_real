@@ -30,10 +30,11 @@ public class Shooter {
     private double currentVelocity = 0.0;
     public static double diffTurret = -0.006;
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.005;
+    public static double kP = 0.004;
 
     public static double kS = 0.0613641; // Static feedforward
-    public static double kV = 0.000375058; // Velocity feedforward
+    public static double kV = 0.00044;
+    public static boolean invertEncoder = true;// Velocity feedforward
 
     public static boolean enablePIDF = true;
 
@@ -204,15 +205,8 @@ public class Shooter {
     }
 
     public double getCurrentVelo() {
-        System.out.println("1: "+shooterEncoder1.getVelocity());
-        System.out.println("2: "+shooterEncoder2.getVelocity());
-
-        if(shooterEncoder1.getVelocity()<10){
-            return Math.abs(shooterEncoder2.getVelocity());
-        }
-        else{
-            return Math.abs(shooterEncoder1.getVelocity());
-        }
+        double v = shooterEncoder1.getVelocity();
+        return invertEncoder ? -v : v;
     }
     public static class Tables {
         private static final double[] DISTANCES = {
@@ -224,7 +218,7 @@ public class Shooter {
                 0.68, 0.66, 0.66, 0.66, 0.66,
                 0.66, 0.66, 0.63, 0.65, 0.75
         };
-        
+
         private static final double[] VELOCITY = {
                 1770, 1790, 1790, 1810, 1830,
                 1870, 1920, 1970, 2030, 2160

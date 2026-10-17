@@ -114,6 +114,7 @@ public class Tele extends OpMode {
         robot.update();
         telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
         robot.shooter.setTargetVelocity(targetVelo);
+        robot.shooter.setHood(0.5);
 
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
