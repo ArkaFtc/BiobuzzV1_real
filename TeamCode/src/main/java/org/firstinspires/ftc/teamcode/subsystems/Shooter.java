@@ -142,8 +142,11 @@ public class Shooter {
     }
 
     public void setTargetVelocity(double target) {
+        // Only reset the controller when the target changes, so calling this every loop keeps its state
+        if (target != targetVelocity) {
+            pidf.reset();
+        }
         targetVelocity = target;
-        pidf.reset();
     }
 
     public double getCurrentVelocity() {
