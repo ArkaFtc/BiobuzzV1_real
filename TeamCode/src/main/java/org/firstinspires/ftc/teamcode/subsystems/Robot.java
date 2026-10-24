@@ -54,7 +54,13 @@ public class Robot {
         follower.update();
         savedPose = follower.pose();
     }
+    public Pose pose() {
+        return follower.pose();
+    }
 
+    public void pose(Pose pose) {
+        follower.setPose(pose);
+    }
     public void clearCache() {
         for (LynxModule hub : hubs) hub.clearBulkCache();
     }
