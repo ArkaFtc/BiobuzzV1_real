@@ -3,21 +3,30 @@ package org.firstinspires.ftc.teamcode.testing;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.subsystems.FlowerMech;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+
 @Configurable
-@TeleOp(name = "ServoTestOnly")
+@TeleOp(name = "IntakeTestOnly")
 public class IntakeTestOnly extends LinearOpMode {
 
-    public static volatile double dropDownPos = 0.5;
-    public static volatile double gatePos = 0.5;
-    public static volatile double flowerPos = 0.5;
+    // Defaults: drop down lowered, gate closed, flower arm idle (up)
+    public static volatile double dropDownPos = Intake.dropDownPos;
+    public static volatile double gatePos = Shooter.upperGateClosedPos;
+    public static volatile double flowerPos = FlowerMech.flowerIdlePos;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Servo dropDown = hardwareMap.get(Servo.class, "dropDown");
         Servo gate = hardwareMap.get(Servo.class, "gate");
         Servo flower = hardwareMap.get(Servo.class, "flowerServo");
+        DcMotorEx frontIntake = hardwareMap.get(DcMotorEx.class, "frontIntake");
+        DcMotorEx transferIntake = hardwareMap.get(DcMotorEx.class, "transferIntake");
 
         waitForStart();
 
@@ -34,6 +43,16 @@ public class IntakeTestOnly extends LinearOpMode {
             flower.setPosition(flowerPos);
             gate.setPosition(gatePos);
 
+            // Triggers give 0..1; negated to match Intake subsystem's "intake in" direction
+            double frontPower = gamepad1.left_trigger;
+            double transferPower = gamepad1.right_trigger;
+            frontIntake.setPower(-frontPower);
+            transferIntake.setPower(-transferPower);
+
+            telemetry.addData("frontIntakePower", frontPower);
+            telemetry.addData("transferIntakePower", transferPower);
+            telemetry.addData("frontIntakeCurrent (A)", "%.2f", frontIntake.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("transferIntakeCurrent (A)", "%.2f", transferIntake.getCurrent(CurrentUnit.AMPS));
             telemetry.addData("dropDownPos", dropDownPos);
             telemetry.addData("gatePos", gatePos);
             telemetry.addData("flowerPos", flowerPos);

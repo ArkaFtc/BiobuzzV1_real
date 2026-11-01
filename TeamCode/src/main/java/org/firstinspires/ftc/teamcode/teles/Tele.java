@@ -6,6 +6,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.Pose;
 import com.pedropathing.utils.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.Range;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -23,7 +24,9 @@ public class Tele extends OpMode {
     public static double targetVelo=1600;
     public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
-    public static double hoodOffsetIncrements = 0.02;
+    public static double hoodStartPos = 0.5;
+    public static double hoodIncrements = 0.02;
+    private double hoodPos;
     private PIDFController headingPID, secondaryHeadingPID;
     public Pose relocalizePos;
     public enum States {
@@ -50,6 +53,7 @@ public class Tele extends OpMode {
         secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
 
         robot.follower.setPose(Robot.savedPose);
+        hoodPos = hoodStartPos;
 
 
         stateMachine = new StateMachineBuilder()
@@ -60,14 +64,18 @@ public class Tele extends OpMode {
                     robot.shooter.setGate(false);
                 })
                 .loop(()->{
-                    robot.flowermech.setFlowerArm(gamepad1.left_trigger > 0.8);
+                    boolean flowerDown = gamepad1.left_trigger > 0.8;
+                    robot.flowermech.setFlowerArm(flowerDown);
                     if (gamepad1.options){
                         robot.intake.setPower(-0.6);
                         robot.intake.setDropDown(false);
                     }
                     else{
                         robot.intake.setPower(1);
-                        robot.intake.setDropDown(true);
+                        if (flowerDown)
+                            robot.intake.setDropDownMid();
+                        else
+                            robot.intake.setDropDown(true);
                     }
                 })
                 .transition(() -> gamepad1.a, States.HoldBalls)
@@ -114,7 +122,6 @@ public class Tele extends OpMode {
         robot.update();
         telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
         robot.shooter.setTargetVelocity(targetVelo);
-        robot.shooter.setHood(0.5);
 
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
@@ -135,15 +142,20 @@ public class Tele extends OpMode {
             targetVelo -= powerOffsetIncrements;
         if (gamepad1.dpadUpWasPressed())
             targetVelo += powerOffsetIncrements;
-        if (gamepad2.yWasPressed())
-            Shooter.hoodOffset -= hoodOffsetIncrements;
-        if (gamepad2.aWasPressed())
-            Shooter.hoodOffset += hoodOffsetIncrements;
+        if (gamepad2.dpadUpWasPressed())
+            hoodPos += hoodIncrements;
+        if (gamepad2.dpadDownWasPressed())
+            hoodPos -= hoodIncrements;
+        // Keep within the servo limits so extra presses past the end don't build up
+        hoodPos = Range.clip(hoodPos, Shooter.hoodLowerBound, Shooter.hoodUpperBound);
+        robot.shooter.setHood(hoodPos);
+
         stateMachine.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
+        telemetry.addData("Hood Pos", hoodPos);
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.addData("Loop time hz", robot.getLoopTimeHz());
 

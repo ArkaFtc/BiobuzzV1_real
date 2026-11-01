@@ -71,6 +71,13 @@ public class Intake {
             dropDown.setPosition(dropUpPos);
         }
     }
+    // Halfway between fully down and idle (up); follows both if they get retuned
+    public static double getDropMidPos(){
+        return (dropDownPos + dropUpPos) / 2.0;
+    }
+    public void setDropDownMid(){
+        dropDown.setPosition(getDropMidPos());
+    }
     public boolean all4(){
         if (ball1() && ball2() &&ball3() &&ball4()){
             return true;
