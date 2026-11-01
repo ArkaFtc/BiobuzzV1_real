@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.autos.baronway;
 
 import org.firstinspires.ftc.teamcode.autos.TipsPaths;
@@ -26,3 +27,4 @@ public class hopefullytips extends CommandOpMode {
         );
     }
 }
+*/

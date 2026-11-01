@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autos;
+/*package org.firstinspires.ftc.teamcode.autos;
 
 import com.pedropathing.api.Paths;
 
@@ -77,3 +77,5 @@ public class TipsPaths {
         return follow(follower, Paths.curve(sweepIntake, parkControl1, park).heading(Interpolator.piecewise().until(0.85, Interpolator.tangent).until(1, Interpolator.constant(parkSegment2Heading))));
     }
 }
+
+ */
