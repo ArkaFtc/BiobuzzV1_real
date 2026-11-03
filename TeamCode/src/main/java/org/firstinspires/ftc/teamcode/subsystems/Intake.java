@@ -26,6 +26,15 @@ public class Intake {
     public boolean gateOpened = false;
     public double intakePower;
 
+    // Low pass filter on beam break 2.
+    // back2FilterTime: how long a steady change takes to flip hasBack2() (seconds)
+    // back2Threshold: filtered value needed to turn on; it turns off below (1 - back2Threshold)
+    public static double back2FilterTime = 0.2;
+    public static double back2Threshold = 0.7;
+    private double back2Value = 0;          // filtered beam break, 0 = clear, 1 = ball
+    private boolean back2Filtered = false;
+    private long back2LastTime = -1;
+
     public Intake(HardwareMap hardwareMap) {
         dropDown = new CachedServo(hardwareMap, "dropDown");
         front = new CachedMotor(hardwareMap, "frontIntake");
@@ -60,6 +69,7 @@ public class Intake {
 
 
     public void update() {
+        updateBack2Filter();
         front.update();
         transfer.update();
         dropDown.update();
@@ -71,6 +81,13 @@ public class Intake {
             dropDown.setPosition(dropUpPos);
         }
     }
+    public double getFrontCurrent(){
+        return front.getCurrentDraw();
+    }
+    public double getTransferCurrent(){
+        return transfer.getCurrentDraw();
+    }
+
     // Halfway between fully down and idle (up); follows both if they get retuned
     public static double getDropMidPos(){
         return (dropDownPos + dropUpPos) / 2.0;
@@ -78,8 +95,38 @@ public class Intake {
     public void setDropDownMid(){
         dropDown.setPosition(getDropMidPos());
     }
+    // Filtered beam break 2. Short blips only nudge the filtered value, so this keeps its
+    // previous state unless beam break 2 changes for about back2FilterTime seconds.
+    public boolean hasBack2(){
+        return back2Filtered;
+    }
+
+    // Filtered value between 0 and 1, useful for telemetry/graphing
+    public double getBack2Value(){
+        return back2Value;
+    }
+
+    private void updateBack2Filter(){
+        long now = System.nanoTime();
+        if (back2LastTime < 0) {
+            back2LastTime = now;
+            return;
+        }
+        double dt = (now - back2LastTime) / 1e9;
+        back2LastTime = now;
+
+        // Pick the time constant so a steady change crosses the threshold in back2FilterTime
+        double tau = back2FilterTime / Math.log(1.0 / (1.0 - back2Threshold));
+        double alpha = dt / (tau + dt);
+        double raw = ball2() ? 1.0 : 0.0;
+        back2Value += alpha * (raw - back2Value);
+
+        // Hysteresis: separate on/off thresholds so it doesn't flicker around one value
+        if (back2Value >= back2Threshold) back2Filtered = true;
+        else if (back2Value <= 1.0 - back2Threshold) back2Filtered = false;
+    }
     public boolean all4(){
-        if (ball1() && ball2() &&ball3() &&ball4()){
+        if (ball2() &&ball3() &&ball4()){
             return true;
         }
         return false;

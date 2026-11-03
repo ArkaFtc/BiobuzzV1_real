@@ -30,10 +30,10 @@ public class Shooter {
     private double currentVelocity = 0.0;
     public static double diffTurret = -0.006;
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.004;
+    public static double kP = 0.003;
 
     public static double kS = 0.0613641; // Static feedforward
-    public static double kV = 0.00044;
+    public static double kV = 0.00042;
     public static boolean invertEncoder = true;// Velocity feedforward
 
     public static boolean enablePIDF = true;
@@ -45,8 +45,8 @@ public class Shooter {
 
 
     // --- Hood bounds ---
-    public static double hoodLowerBound = 0.48;
-    public static double hoodUpperBound = 0.85;
+    public static double hoodLowerBound = 0.03;
+    public static double hoodUpperBound = 0.73;
     private double baseHoodPosition = hoodLowerBound;
 
     static Pose RedGoalPose = new Pose(-70.25, 70.25);
@@ -68,8 +68,8 @@ public class Shooter {
     public static double limelightOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.46;
-    public static double upperGateClosedPos = 0.28;
+    public static double upperGateOpenPos = 0.33;
+    public static double upperGateClosedPos = 0.46;
 
 
     private double prevTargetVelocity = 0.0;
@@ -149,6 +149,12 @@ public class Shooter {
         targetVelocity = target;
     }
 
+    // Apply new gains while running (the controllers otherwise only read kP/kS/kV once at startup)
+    public void setGains(double p, double s, double v) {
+        pidf.setP(p);
+        feedforward = new SimpleMotorFeedforward(s, v);
+    }
+
     public double getCurrentVelocity() {
         return currentVelocity;
     }
@@ -157,6 +163,14 @@ public class Shooter {
         power = power * 12/voltageSensor.getVoltage();
         shooterCachedMotor1.set(-power);
         shooterCachedMotor2.set(power);
+    }
+
+    public double getShooter1Current() {
+        return shooterCachedMotor1.getCurrentDraw();
+    }
+
+    public double getShooter2Current() {
+        return shooterCachedMotor2.getCurrentDraw();
     }
 
     public void setHood(double pos){

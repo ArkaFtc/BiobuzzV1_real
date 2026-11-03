@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -22,11 +25,20 @@ public class IntakeTestOnly extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        // Send telemetry to both the driver station and Panels
+        telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         Servo dropDown = hardwareMap.get(Servo.class, "dropDown");
         Servo gate = hardwareMap.get(Servo.class, "gate");
         Servo flower = hardwareMap.get(Servo.class, "flowerServo");
         DcMotorEx frontIntake = hardwareMap.get(DcMotorEx.class, "frontIntake");
         DcMotorEx transferIntake = hardwareMap.get(DcMotorEx.class, "transferIntake");
+        // Read fresh sensor values every loop (teleop uses MANUAL caching, which would freeze reads here)
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        // Only used to read the beam breaks; the motors and servos above are driven directly
+        Intake intake = new Intake(hardwareMap);
 
         waitForStart();
 
@@ -51,8 +63,16 @@ public class IntakeTestOnly extends LinearOpMode {
 
             telemetry.addData("frontIntakePower", frontPower);
             telemetry.addData("transferIntakePower", transferPower);
-            telemetry.addData("frontIntakeCurrent (A)", "%.2f", frontIntake.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("transferIntakeCurrent (A)", "%.2f", transferIntake.getCurrent(CurrentUnit.AMPS));
+            double frontCurrent = frontIntake.getCurrent(CurrentUnit.AMPS);
+            double transferCurrent = transferIntake.getCurrent(CurrentUnit.AMPS);
+            // Sent as numbers (not formatted text) so Panels can graph them
+            telemetry.addData("frontIntakeCurrent (A)", Math.round(frontCurrent * 100) / 100.0);
+            telemetry.addData("transferIntakeCurrent (A)", Math.round(transferCurrent * 100) / 100.0);
+            telemetry.addData("intakeTotalCurrent (A)", Math.round((frontCurrent + transferCurrent) * 100) / 100.0);
+            telemetry.addData("ball 1", intake.ball1());
+            telemetry.addData("ball 2", intake.ball2());
+            telemetry.addData("ball 3", intake.ball3());
+            telemetry.addData("ball 4", intake.ball4());
             telemetry.addData("dropDownPos", dropDownPos);
             telemetry.addData("gatePos", gatePos);
             telemetry.addData("flowerPos", flowerPos);
