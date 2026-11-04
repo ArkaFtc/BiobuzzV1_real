@@ -193,6 +193,9 @@ public class Tele extends OpMode {
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Hood Pos", hoodPos);
+        telemetry.addData("Has Back 2 (filtered)", robot.intake.hasBack2());
+        telemetry.addData("Back 2 Raw", robot.intake.ball2());
+        telemetry.addData("Back 2 Filter Value", round2(robot.intake.getBack2Value()));
         if (showCurrent) {
             double frontCurrent = robot.intake.getFrontCurrent();
             double transferCurrent = robot.intake.getTransferCurrent();
