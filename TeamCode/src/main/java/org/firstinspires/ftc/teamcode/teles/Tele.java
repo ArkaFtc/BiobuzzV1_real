@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode.teles;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.Pose;
-import com.pedropathing.utils.Angle;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
@@ -40,7 +39,7 @@ public class Tele extends OpMode {
     public static double flowerReleaseTime = 0.2;
     public enum States {
         Intake,
-        FlowerRelease,
+        FlowerRelease, Got4,
         HoldBalls,
         OpenGate,
         Shoot
@@ -94,7 +93,7 @@ public class Tele extends OpMode {
                     }
                 })
                 .transition(() -> gamepad1.a, States.HoldBalls)
-                .transition(() -> robot.intake.all4(), States.HoldBalls)
+                .transition(() -> robot.intake.all4(), States.Got4)
                 .transition(() -> gamepad1.b, States.OpenGate)
                 // Trigger released while the arm is down: hold it a little longer
                 .transition(() -> robot.flowermech.isDown && gamepad1.left_trigger <= 0.8, States.FlowerRelease)
@@ -113,7 +112,17 @@ public class Tele extends OpMode {
                 .transition(() -> robot.intake.all4(), States.HoldBalls)
                 .transition(() -> gamepad1.left_trigger > 0.8, States.Intake)
                 .transitionTimed(flowerReleaseTime, States.Intake)
-
+                .state(States.Got4)
+                .onEnter(()->{
+                    robot.flowermech.setFlowerArm(false);
+                    robot.intake.setDropDown(false);
+                    robot.intake.setIntakePower(1);
+                    robot.intake.setTransferPower(0);
+                    robot.shooter.setGate(false);
+                })
+                .transition(() -> gamepad1.y, States.Intake)
+                .transition(() -> gamepad1.b, States.OpenGate)
+                .transitionTimed(0.4,States.HoldBalls)
                 .state(States.HoldBalls)
                 .onEnter(()->{
                     robot.flowermech.setFlowerArm(false);
@@ -196,6 +205,10 @@ public class Tele extends OpMode {
         telemetry.addData("Has Back 2 (filtered)", robot.intake.hasBack2());
         telemetry.addData("Back 2 Raw", robot.intake.ball2());
         telemetry.addData("Back 2 Filter Value", round2(robot.intake.getBack2Value()));
+        telemetry.addData("Has Ball 3 (filtered)", robot.intake.hasBall3());
+        telemetry.addData("Ball 3 Filter Value", round2(robot.intake.getBall3Value()));
+        telemetry.addData("Has Ball 4 (filtered)", robot.intake.hasBall4());
+        telemetry.addData("Ball 4 Filter Value", round2(robot.intake.getBall4Value()));
         if (showCurrent) {
             double frontCurrent = robot.intake.getFrontCurrent();
             double transferCurrent = robot.intake.getTransferCurrent();

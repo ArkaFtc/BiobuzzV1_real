@@ -26,14 +26,14 @@ public class Intake {
     public boolean gateOpened = false;
     public double intakePower;
 
-    // Low pass filter on beam break 2.
-    // back2FilterTime: how long a steady change takes to flip hasBack2() (seconds)
-    // back2Threshold: filtered value needed to turn on; it turns off below (1 - back2Threshold)
-    public static double back2FilterTime = 0.2;
-    public static double back2Threshold = 0.7;
-    private double back2Value = 0;          // filtered beam break, 0 = clear, 1 = ball
-    private boolean back2Filtered = false;
-    private long back2LastTime = -1;
+    // Low pass filter on beam breaks 2, 3 and 4 (shared settings).
+    // beamFilterTime: how long a steady change takes to flip the filtered output (seconds)
+    // beamThreshold: filtered value needed to turn on; it turns off below (1 - beamThreshold)
+    public static double beamFilterTime = 0.2;
+    public static double beamThreshold = 0.7;
+    private final BeamFilter back2Filter = new BeamFilter();
+    private final BeamFilter ball3Filter = new BeamFilter();
+    private final BeamFilter ball4Filter = new BeamFilter();
 
     public Intake(HardwareMap hardwareMap) {
         dropDown = new CachedServo(hardwareMap, "dropDown");
@@ -69,7 +69,9 @@ public class Intake {
 
 
     public void update() {
-        updateBack2Filter();
+        back2Filter.update(ball2());
+        ball3Filter.update(ball3());
+        ball4Filter.update(ball4());
         front.update();
         transfer.update();
         dropDown.update();
@@ -95,41 +97,57 @@ public class Intake {
     public void setDropDownMid(){
         dropDown.setPosition(getDropMidPos());
     }
-    // Filtered beam break 2. Short blips only nudge the filtered value, so this keeps its
-    // previous state unless beam break 2 changes for about back2FilterTime seconds.
+    // Filtered beam breaks. Short blips only nudge the filtered value, so each keeps its
+    // previous state unless the beam break changes for about beamFilterTime seconds.
     public boolean hasBack2(){
-        return back2Filtered;
+        return back2Filter.on;
+    }
+    public boolean hasBall3(){
+        return ball3Filter.on;
+    }
+    public boolean hasBall4(){
+        return ball4Filter.on;
     }
 
-    // Filtered value between 0 and 1, useful for telemetry/graphing
+    // Filtered values between 0 and 1, useful for telemetry/graphing
     public double getBack2Value(){
-        return back2Value;
+        return back2Filter.value;
+    }
+    public double getBall3Value(){
+        return ball3Filter.value;
+    }
+    public double getBall4Value(){
+        return ball4Filter.value;
     }
 
-    private void updateBack2Filter(){
-        long now = System.nanoTime();
-        if (back2LastTime < 0) {
-            back2LastTime = now;
-            return;
+    private static class BeamFilter {
+        double value = 0;       // 0 = clear, 1 = ball
+        boolean on = false;
+        private long lastTime = -1;
+
+        void update(boolean rawOn){
+            long now = System.nanoTime();
+            if (lastTime < 0) {
+                lastTime = now;
+                return;
+            }
+            double dt = (now - lastTime) / 1e9;
+            lastTime = now;
+
+            // Pick the time constant so a steady change crosses the threshold in beamFilterTime
+            double tau = beamFilterTime / Math.log(1.0 / (1.0 - beamThreshold));
+            double alpha = dt / (tau + dt);
+            double raw = rawOn ? 1.0 : 0.0;
+            value += alpha * (raw - value);
+
+            // Hysteresis: separate on/off thresholds so it doesn't flicker around one value
+            if (value >= beamThreshold) on = true;
+            else if (value <= 1.0 - beamThreshold) on = false;
         }
-        double dt = (now - back2LastTime) / 1e9;
-        back2LastTime = now;
-
-        // Pick the time constant so a steady change crosses the threshold in back2FilterTime
-        double tau = back2FilterTime / Math.log(1.0 / (1.0 - back2Threshold));
-        double alpha = dt / (tau + dt);
-        double raw = ball2() ? 1.0 : 0.0;
-        back2Value += alpha * (raw - back2Value);
-
-        // Hysteresis: separate on/off thresholds so it doesn't flicker around one value
-        if (back2Value >= back2Threshold) back2Filtered = true;
-        else if (back2Value <= 1.0 - back2Threshold) back2Filtered = false;
     }
+    // Back 3 slots full, using the filtered beam breaks
     public boolean all4(){
-        if (ball2() &&ball3() &&ball4()){
-            return true;
-        }
-        return false;
+        return hasBack2() && hasBall3() && hasBall4();
     }
     public boolean ball1(){
         return beamBreakball1.isPressed();
