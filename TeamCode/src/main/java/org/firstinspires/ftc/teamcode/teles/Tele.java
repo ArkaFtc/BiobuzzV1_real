@@ -188,7 +188,10 @@ public class Tele extends OpMode {
         stateMachine.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
-        telemetry.addData("Aiming At Goal", robot.shooter.getClosestGoal(robot.follower.pose(), alliance));
+        Pose pose = robot.follower.pose();
+        telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, alliance)));
+        telemetry.addData("Right Hive Distance", round2(robot.shooter.getRightGoalDistance(pose, alliance)));
+        telemetry.addData("Aiming At", robot.shooter.getAimedGoalSide(pose, alliance));
         telemetry.addData("Angle and distance", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), alliance)));
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());

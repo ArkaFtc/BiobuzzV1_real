@@ -71,10 +71,20 @@ public class Shooter {
             return alliance == Alliance.RED ? RED : BLUE;
         }
 
+        public double distanceToLeft(Pose currPosition) {
+            return Math.hypot(left.x() - currPosition.x(), left.y() - currPosition.y());
+        }
+
+        public double distanceToRight(Pose currPosition) {
+            return Math.hypot(right.x() - currPosition.x(), right.y() - currPosition.y());
+        }
+
+        public boolean isLeftCloser(Pose currPosition) {
+            return distanceToLeft(currPosition) <= distanceToRight(currPosition);
+        }
+
         public Pose closest(Pose currPosition) {
-            double dLeft = Math.hypot(left.x() - currPosition.x(), left.y() - currPosition.y());
-            double dRight = Math.hypot(right.x() - currPosition.x(), right.y() - currPosition.y());
-            return dLeft <= dRight ? left : right;
+            return isLeftCloser(currPosition) ? left : right;
         }
     }
 
@@ -127,6 +137,19 @@ public class Shooter {
 
     public Pose getClosestGoal(Pose currPosition, Alliance alliance){
         return Goal.of(alliance).closest(currPosition);
+    }
+
+    public double getLeftGoalDistance(Pose currPosition, Alliance alliance){
+        return Goal.of(alliance).distanceToLeft(currPosition);
+    }
+
+    public double getRightGoalDistance(Pose currPosition, Alliance alliance){
+        return Goal.of(alliance).distanceToRight(currPosition);
+    }
+
+    // "Left" or "Right": the goal aimAtTarget picks (the closer one)
+    public String getAimedGoalSide(Pose currPosition, Alliance alliance){
+        return Goal.of(alliance).isLeftCloser(currPosition) ? "Left" : "Right";
     }
 
     public double[] getAngleDistance(Pose currPosition, Pose target){

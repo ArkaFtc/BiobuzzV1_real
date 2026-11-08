@@ -109,6 +109,10 @@ public class RedStateMachineTesting extends OpMode {
         telemetry.update();
     }
 
+    private static double round2(double value) {
+        return Math.round(value * 100) / 100.0;
+    }
+
     @Override
     public void start() {
         stateMachine.start();
@@ -141,7 +145,11 @@ public class RedStateMachineTesting extends OpMode {
         telemetry.addData("Target Velocity", targetVelo);
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Hood Pos", hoodPos);
-        telemetry.addData("Current Pos", robot.follower.pose());
+        Pose pose = robot.follower.pose();
+        telemetry.addData("Current Pos", pose);
+        telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, Alliance.RED)));
+        telemetry.addData("Right Hive Distance", round2(robot.shooter.getRightGoalDistance(pose, Alliance.RED)));
+        telemetry.addData("Aiming At", robot.shooter.getAimedGoalSide(pose, Alliance.RED));
         telemetry.addData("Statemachine State", stateMachine.getState());
         telemetry.update();
     }
