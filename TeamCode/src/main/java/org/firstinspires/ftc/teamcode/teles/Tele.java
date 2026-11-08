@@ -33,7 +33,7 @@ public class Tele extends OpMode {
     public static boolean showCurrent = false;
     private List<LynxModule> hubs;
     public static double headingKP = 1.00;
-    public static double headingKD = 0.2179;
+    public static double headingKD = 0.1179;
     private boolean headingLocked = false;
     private double prevHeadingError = 0;
     private long prevHeadingTime = 0;
