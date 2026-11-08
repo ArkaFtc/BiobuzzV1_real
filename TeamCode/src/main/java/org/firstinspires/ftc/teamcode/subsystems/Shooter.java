@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.SimpleMotorFeedforward;
 import org.firstinspires.ftc.teamcode.utils.CachedServo;
@@ -49,16 +50,31 @@ public class Shooter {
     public static double hoodUpperBound = 0.73;
     private double baseHoodPosition = hoodLowerBound;
 
-    static Pose RedGoalPose = new Pose(-70.25, 70.25);
-    static Pose BlueGoalPose = new Pose(-70.25, -70.25);
+    static Pose RightBlueGoalPose = new Pose(84, 89.5);
+    static Pose LeftBlueGoalPose = new Pose(84, 50);
+    static Pose RightRedGoalPose = new Pose(58, 50);
+    static Pose LeftRedGoalPose = new Pose(58, 89.5);
 
+
+    // Each alliance has a left and right goal; the shooter aims at whichever is closer
     public enum Goal{
-        RED (RedGoalPose),
-        BLUE (BlueGoalPose);
+        RED (LeftRedGoalPose, RightRedGoalPose),
+        BLUE (LeftBlueGoalPose, RightBlueGoalPose);
 
-        Pose position;
-        Goal(Pose pose) {
-            position = pose;
+        final Pose left, right;
+        Goal(Pose left, Pose right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        public static Goal of(Alliance alliance) {
+            return alliance == Alliance.RED ? RED : BLUE;
+        }
+
+        public Pose closest(Pose currPosition) {
+            double dLeft = Math.hypot(left.x() - currPosition.x(), left.y() - currPosition.y());
+            double dRight = Math.hypot(right.x() - currPosition.x(), right.y() - currPosition.y());
+            return dLeft <= dRight ? left : right;
         }
     }
 
@@ -105,8 +121,12 @@ public class Shooter {
         }
     }
 
-    public double[] getAngleDistance(Pose currPosition, Goal target){
-        return getAngleDistance(currPosition, target.position);
+    public double[] getAngleDistance(Pose currPosition, Alliance alliance){
+        return getAngleDistance(currPosition, getClosestGoal(currPosition, alliance));
+    }
+
+    public Pose getClosestGoal(Pose currPosition, Alliance alliance){
+        return Goal.of(alliance).closest(currPosition);
     }
 
     public double[] getAngleDistance(Pose currPosition, Pose target){
@@ -129,8 +149,8 @@ public class Shooter {
     }
 
 
-    public void aimAtTarget(Pose currPosition, Goal target){
-        aimAtTarget(currPosition, target.position);
+    public void aimAtTarget(Pose currPosition, Alliance alliance){
+        aimAtTarget(currPosition, getClosestGoal(currPosition, alliance));
     }
 
     public void aimAtTarget(Pose currPosition, Pose target){

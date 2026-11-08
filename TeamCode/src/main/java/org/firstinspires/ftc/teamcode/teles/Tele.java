@@ -25,7 +25,6 @@ public class Tele extends OpMode {
     Alliance alliance;
     StateMachine stateMachine;
     public static double targetVelo=1600;
-    public static Shooter.Goal target = Shooter.Goal.BLUE;
     public static double powerOffsetIncrements = 20;
     public static double hoodStartPos = 0.5;
     public static double hoodIncrements = 0.02;
@@ -49,18 +48,13 @@ public class Tele extends OpMode {
     }
     public void init() {
         if (alliance.equals(Alliance.BLUE)) {
-            target = Shooter.Goal.BLUE;
-            relocalizePos = new Pose(-14.5, -56, Math.toRadians(-90));
+            relocalizePos = new Pose(133, 105, Math.toRadians(180));
         } else {
-            target = Shooter.Goal.RED;
-            relocalizePos = new Pose(-14.5, 56, Math.toRadians(90));
+            relocalizePos = new Pose(8, 37, Math.toRadians(0));
         }
         telemetry = new JoinedTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         robot = new Robot(hardwareMap, alliance);
         robot.update();
-        headingPID = new PIDFController(1.4426, 0, 0.2179, 0);
-        secondaryHeadingPID = new PIDFController(0.6412, 0 ,0.1141, 0);
-
         robot.follower.setPose(Robot.savedPose);
         hoodPos = hoodStartPos;
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -154,7 +148,6 @@ public class Tele extends OpMode {
     public void init_loop() {
         robot.follower.setPose(Robot.savedPose);
         robot.update();
-        telemetry.addData("Shooter Target", target);
         telemetry.addData("Current Pos", robot.follower.pose());
         telemetry.update();
     }
@@ -166,9 +159,6 @@ public class Tele extends OpMode {
     }
     public void loop() {
         robot.update();
-        telemetry.addData("Angle and distance:", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), target)));
-        robot.shooter.setTargetVelocity(targetVelo);
-
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double turn = gamepad1.right_stick_x;
@@ -184,24 +174,26 @@ public class Tele extends OpMode {
             Shooter.powerOffset = 0;
         }
 
+        // Dpads nudge the lookup-table values up or down
         if (gamepad1.dpadDownWasPressed())
-            targetVelo -= powerOffsetIncrements;
+            Shooter.powerOffset -= powerOffsetIncrements;
         if (gamepad1.dpadUpWasPressed())
-            targetVelo += powerOffsetIncrements;
+            Shooter.powerOffset += powerOffsetIncrements;
         if (gamepad2.dpadUpWasPressed())
-            hoodPos += hoodIncrements;
+            Shooter.hoodOffset += hoodIncrements;
         if (gamepad2.dpadDownWasPressed())
-            hoodPos -= hoodIncrements;
-        // Keep within the servo limits so extra presses past the end don't build up
-        hoodPos = Range.clip(hoodPos, Shooter.hoodLowerBound, Shooter.hoodUpperBound);
-        robot.shooter.setHood(hoodPos);
-
+            Shooter.hoodOffset -= hoodIncrements;
+        // Sets shooter velocity and hood from the distance to the goal (plus the offsets above)
+        robot.shooter.aimAtTarget(robot.follower.pose(),alliance);
         stateMachine.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
+        telemetry.addData("Aiming At Goal", robot.shooter.getClosestGoal(robot.follower.pose(), alliance));
+        telemetry.addData("Angle and distance", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), alliance)));
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
-        telemetry.addData("Hood Pos", hoodPos);
+        telemetry.addData("Power Offset", Shooter.powerOffset);
+        telemetry.addData("Hood Offset", Shooter.hoodOffset);
         telemetry.addData("Has Back 2 (filtered)", robot.intake.hasBack2());
         telemetry.addData("Back 2 Raw", robot.intake.ball2());
         telemetry.addData("Back 2 Filter Value", round2(robot.intake.getBack2Value()));
