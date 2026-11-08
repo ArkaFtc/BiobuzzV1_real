@@ -46,8 +46,8 @@ public class Shooter {
 
 
     // --- Hood bounds ---
-    public static double hoodLowerBound = 0.03;
-    public static double hoodUpperBound = 0.73;
+    public static double hoodLowerBound = 0.09;
+    public static double hoodUpperBound = 0.8;
     private double baseHoodPosition = hoodLowerBound;
 
     static Pose RightBlueGoalPose = new Pose(84, 89.5);
@@ -270,18 +270,18 @@ public class Shooter {
     }
     public static class Tables {
         private static final double[] DISTANCES = {
-                123.3, 127.1, 131.0, 134.2, 137.1,
-                141.1, 145.4, 149.3, 153.2, 158.3
+                17.17, 21.5, 28, 35, 40,
+                45, 49, 54, 60.7, 63
         };
 
         private static final double[] HOOD = {
-                0.68, 0.66, 0.66, 0.66, 0.66,
-                0.66, 0.66, 0.63, 0.65, 0.75
+                0.8, 0.76, 0.68, 0.6, 0.54,
+                0.48, 0.48, 0.42, 0.4, 0.38
         };
 
         private static final double[] VELOCITY = {
-                1770, 1790, 1790, 1810, 1830,
-                1870, 1920, 1970, 2030, 2160
+                1340, 1400, 1420, 1460, 1500,
+                1540, 1580, 1600, 1630, 1650
         };
 
         public static double getHoodPosition(double distance) {
