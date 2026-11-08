@@ -50,10 +50,10 @@ public class Shooter {
     public static double hoodUpperBound = 0.8;
     private double baseHoodPosition = hoodLowerBound;
 
-    static Pose RightBlueGoalPose = new Pose(84, 89.5);
-    static Pose LeftBlueGoalPose = new Pose(84, 50);
-    static Pose RightRedGoalPose = new Pose(58, 50);
-    static Pose LeftRedGoalPose = new Pose(58, 89.5);
+    static Pose RightBlueGoalPose = new Pose(84, 86.5);
+    static Pose LeftBlueGoalPose = new Pose(84, 53);
+    static Pose RightRedGoalPose = new Pose(58, 53);
+    static Pose LeftRedGoalPose = new Pose(58, 86.5);
 
 
     // Each alliance has a left and right goal; the shooter aims at whichever is closer
