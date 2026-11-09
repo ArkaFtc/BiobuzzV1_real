@@ -39,16 +39,10 @@ public class Shooter {
 
     public static boolean enablePIDF = true;
 
-    // --- Turret bounds ---
-    public static double turretUpperBound = 0.95;
-    public static double turretLowerBound = 0.05;
-    public static double shooterincrease = 100;
-
 
     // --- Hood bounds ---
     public static double hoodLowerBound = 0.09;
     public static double hoodUpperBound = 0.8;
-    private double baseHoodPosition = hoodLowerBound;
 
     static Pose RightBlueGoalPose = new Pose(84, 86.5);
     static Pose LeftBlueGoalPose = new Pose(84, 53);
@@ -89,9 +83,7 @@ public class Shooter {
     }
 
     public static double powerOffset = 0;
-    public static double turretOffset = 0;
     public static double hoodOffset = 0;
-    public static double limelightOffset = 0;
 
 
     public static double upperGateOpenPos = 0.33;
