@@ -4,6 +4,7 @@ import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -28,6 +29,9 @@ public class redAutoNoTurret extends CommandOpMode {
     public static double shootMs = 400;
     public static double flowerDownCompletion = 0.5;
     public static double idleFrontPower = 0.6;
+    // Turn-to-goal before each shot
+    public static double aimToleranceDeg = 2;
+    public static double aimTimeoutMs = 1000;
 
     public static double leftGoalX = 58, leftGoalY = 86.5;
     public static double rightGoalX = 58, rightGoalY = 53;
@@ -35,8 +39,8 @@ public class redAutoNoTurret extends CommandOpMode {
     final Alliance alliance = Alliance.RED;
     RedTipsNoTurretPaths paths;
     Robot robot;
-    // When true, the loop runs the transfer until the back 2 slots are full (same as tele)
     boolean intaking = false;
+    double aimHeading = 0;
 
     @Override
     public void init() {
@@ -97,6 +101,8 @@ public class redAutoNoTurret extends CommandOpMode {
                     Pose goal = closestGoal(robot.pose());
                     robot.shooter.aimAtTarget(robot.pose(), goal);
                     telemetry.addData("aiming at", goal);
+                    telemetry.addData("heading error to goal (deg)",
+                            Math.toDegrees(wrapAngle(goalHeading(robot.pose()) - robot.pose().heading())));
                     if (intaking)
                         robot.intake.setTransferPower(robot.intake.hasBack2() ? 0 : 1);
 
@@ -161,11 +167,39 @@ public class redAutoNoTurret extends CommandOpMode {
         });
     }
 
-    // Same order as tele: open gate, then feed everything through
+    // Heading (radians) that points the front of the robot at the closest goal, same as tele's heading lock
+    double goalHeading(Pose pose) {
+        Pose goal = closestGoal(pose);
+        return Math.atan2(goal.y() - pose.y(), goal.x() - pose.x());
+    }
+
+    static double wrapAngle(double angle) {
+        while (angle > Math.PI) angle -= 2 * Math.PI;
+        while (angle < -Math.PI) angle += 2 * Math.PI;
+        return angle;
+    }
+
+    // Turns in place to face the closest goal; the follower keeps holding this pose while shooting
+    CommandBuilder aimAtGoal() {
+        return sequential(
+                instant(() -> {
+                    Pose pose = robot.pose();
+                    aimHeading = goalHeading(pose);
+                    robot.follower.hold(new Pose(pose.x(), pose.y(), aimHeading));
+                }),
+                waitUntil(() -> Math.abs(Math.toDegrees(wrapAngle(aimHeading - robot.pose().heading()))) < aimToleranceDeg)
+                        .raceWith(waitMs(aimTimeoutMs))
+        );
+    }
+
+    // Aim and spin up at the same time, then same order as tele: open gate, then feed everything through
     CommandBuilder shoot() {
         return sequential(
-                waitUntil(() -> Math.abs(robot.shooter.getTargetVelo() - robot.shooter.getCurrentVelocity()) < velocityTolerance)
-                        .raceWith(waitMs(spinUpTimeoutMs)),
+                parallel(
+                        aimAtGoal(),
+                        waitUntil(() -> Math.abs(robot.shooter.getTargetVelo() - robot.shooter.getCurrentVelocity()) < velocityTolerance)
+                                .raceWith(waitMs(spinUpTimeoutMs))
+                ),
                 instant(() -> {
                     intaking = false;
                     robot.flowermech.setFlowerArm(false);

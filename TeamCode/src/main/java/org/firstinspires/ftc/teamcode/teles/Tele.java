@@ -38,7 +38,6 @@ public class Tele extends OpMode {
     private double prevHeadingError = 0;
     private long prevHeadingTime = 0;
     public Pose relocalizePos;
-    // How long the flower arm stays down after the trigger is released
     public static double flowerReleaseTime = 0.2;
     public enum States {
         Intake,
