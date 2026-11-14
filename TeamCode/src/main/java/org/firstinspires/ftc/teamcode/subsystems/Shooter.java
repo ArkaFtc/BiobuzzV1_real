@@ -231,6 +231,14 @@ public class Shooter {
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
     }
 
+    // Use instead of update() to run the flywheel at a fixed power, skipping velocity control
+    public void updateDirect(double power) {
+        currentVelocity = getCurrentVelo();
+        setDirectPower(power);
+        gate.update();
+        update_motors();
+    }
+
     public void update() {
         // Measure velocity
         currentVelocity = getCurrentVelo();
