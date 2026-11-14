@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 public class Shooter {
 
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
-    private Servo hood;
+    private Servo hood, turret1, turret2;
 
     private CachedServo gate;
 
@@ -26,7 +26,7 @@ public class Shooter {
 
     private PIDFController pidf;
     private SimpleMotorFeedforward feedforward;
-
+    private double ticksPerDeg = 0.00333333;
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
     public static double diffTurret = -0.006;
@@ -43,6 +43,10 @@ public class Shooter {
     // --- Hood bounds ---
     public static double hoodLowerBound = 0.09;
     public static double hoodUpperBound = 0.8;
+
+    public static double turretMidPos = 0.5;
+    public static double turretUpperBound = 0.97;
+    public static double turretLowerBound = 0.03;
 
     static Pose RightBlueGoalPose = new Pose(84, 86.5);
     static Pose LeftBlueGoalPose = new Pose(84, 53);
@@ -93,8 +97,6 @@ public class Shooter {
     private double prevTargetVelocity = 0.0;
     private long prevTargetTime;
 
-    public boolean canReachPos = true;
-
     public Shooter(HardwareMap hardwareMap) {
         shooterCachedMotor1 = new CachedMotor(hardwareMap, "shooterMotor1");
         shooterCachedMotor2 = new CachedMotor(hardwareMap, "shooterMotor2");
@@ -106,6 +108,8 @@ public class Shooter {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         gate = new CachedServo(hardwareMap, "gate");
+        turret1 = hardwareMap.servo.get("turret1");
+        turret2 = hardwareMap.servo.get("turret2");
 
         hood = hardwareMap.servo.get("hood");
 
@@ -115,6 +119,15 @@ public class Shooter {
         prevTargetTime = System.nanoTime();
     }
 
+    public double convertAngletoPos(double angle){
+        return (angle*ticksPerDeg+turretMidPos);
+
+    }
+    public void setTurretPos(double pos){
+        turret1.setPosition(pos);
+        turret2.setPosition(1-pos);
+
+    }
     public void setGate(boolean open){
         if (open){
             gate.setPosition(upperGateOpenPos);

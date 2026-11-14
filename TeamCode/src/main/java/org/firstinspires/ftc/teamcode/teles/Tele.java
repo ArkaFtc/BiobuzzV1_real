@@ -30,10 +30,10 @@ public class Tele extends OpMode {
     public static double hoodStartPos = 0.5;
     public static double hoodIncrements = 0.02;
     private double hoodPos;
-    public static boolean showCurrent = false;
+    public static boolean showCurrent = true;
     private List<LynxModule> hubs;
-    public static double headingKP = 1.00;
-    public static double headingKD = 0.1179;
+    public static double headingKP = 1.60;
+    public static double headingKD = 0.079;
     private boolean headingLocked = false;
     private double prevHeadingError = 0;
     private long prevHeadingTime = 0;
