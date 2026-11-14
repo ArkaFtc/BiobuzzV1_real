@@ -7,7 +7,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.Range;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
@@ -25,18 +24,12 @@ public class Tele extends OpMode {
     Robot robot;
     Alliance alliance;
     StateMachine stateMachine;
-    public static double targetVelo=1600;
     public static double powerOffsetIncrements = 20;
     public static double hoodStartPos = 0.5;
     public static double hoodIncrements = 0.02;
-    private double hoodPos;
+    public static double goalYOffsetIncrements = 1;
     public static boolean showCurrent = true;
     private List<LynxModule> hubs;
-    public static double headingKP = 1.60;
-    public static double headingKD = 0.079;
-    private boolean headingLocked = false;
-    private double prevHeadingError = 0;
-    private long prevHeadingTime = 0;
     public Pose relocalizePos;
     // How long the flower arm stays down after the trigger is released
     public static double flowerReleaseTime = 0.2;
@@ -60,7 +53,7 @@ public class Tele extends OpMode {
         robot = new Robot(hardwareMap, alliance);
         robot.update();
         robot.follower.setPose(Robot.savedPose);
-        hoodPos = hoodStartPos;
+        double hoodPos = hoodStartPos;
         hubs = hardwareMap.getAll(LynxModule.class);
 
 
@@ -158,35 +151,6 @@ public class Tele extends OpMode {
     private static double round2(double value) {
         return Math.round(value * 100) / 100.0;
     }
-    // Wraps an angle in radians to the range -pi..pi
-    private static double wrapAngle(double angle) {
-        while (angle > Math.PI) angle -= 2 * Math.PI;
-        while (angle < -Math.PI) angle += 2 * Math.PI;
-        return angle;
-    }
-
-    // PD turn power that points the robot at the closest goal. The target is recomputed
-    // every loop, so it keeps tracking the goal while driving.
-    private double headingLockTurn() {
-        Pose pose = robot.follower.pose();
-        Pose goal = robot.shooter.getClosestGoal(pose, alliance);
-        double targetHeading = Math.atan2(goal.y() - pose.y(), goal.x() - pose.x());
-        double error = wrapAngle(targetHeading - pose.heading());
-
-        long now = System.nanoTime();
-        double derivative = 0;
-        // Skip the D term on the first loop after pressing so it doesn't kick
-        if (prevHeadingTime != 0) {
-            double dt = (now - prevHeadingTime) / 1e9;
-            if (dt > 0)
-                derivative = wrapAngle(error - prevHeadingError) / dt;
-        }
-        prevHeadingError = error;
-        prevHeadingTime = now;
-
-        return Range.clip(headingKP * error + headingKD * derivative, -1, 1);
-    }
-
     public void start() {
         stateMachine.start();
     }
@@ -201,16 +165,11 @@ public class Tele extends OpMode {
             strafe *= 0.4;
             turn *= 0.4;
         }
-        double turnPower = -turn;
-        headingLocked = gamepad1.right_trigger > 0.5;
-        if (headingLocked)
-            turnPower = headingLockTurn();
-        else
-            prevHeadingTime = 0;
-        robot.follower.manual(-forward, -strafe, turnPower);
+        robot.follower.manual(-forward, -strafe, -turn);
         if (gamepad1.leftBumperWasPressed()) {
             robot.follower.setPose(relocalizePos);
             Shooter.powerOffset = 0;
+            Shooter.goalYOffset = 0;
         }
 
         // Dpads nudge the lookup-table values up or down
@@ -218,6 +177,10 @@ public class Tele extends OpMode {
             Shooter.powerOffset -= powerOffsetIncrements;
         if (gamepad1.dpadUpWasPressed())
             Shooter.powerOffset += powerOffsetIncrements;
+        if (gamepad1.dpadRightWasPressed())
+            Shooter.goalYOffset += goalYOffsetIncrements;
+        if (gamepad1.dpadLeftWasPressed())
+            Shooter.goalYOffset -= goalYOffsetIncrements;
         if (gamepad2.dpadUpWasPressed())
             Shooter.hoodOffset += hoodIncrements;
         if (gamepad2.dpadDownWasPressed())
@@ -231,20 +194,12 @@ public class Tele extends OpMode {
         telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, alliance)));
         telemetry.addData("Right Hive Distance", round2(robot.shooter.getRightGoalDistance(pose, alliance)));
         telemetry.addData("Aiming At", robot.shooter.getAimedGoalSide(pose, alliance));
-        telemetry.addData("Heading Locked", headingLocked);
-        telemetry.addData("Heading Error (deg)", headingLocked ? round2(Math.toDegrees(prevHeadingError)) : 0);
         telemetry.addData("Angle and distance", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), alliance)));
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Power Offset", Shooter.powerOffset);
         telemetry.addData("Hood Offset", Shooter.hoodOffset);
-        telemetry.addData("Has Back 2 (filtered)", robot.intake.hasBack2());
-        telemetry.addData("Back 2 Raw", robot.intake.ball2());
-        telemetry.addData("Back 2 Filter Value", round2(robot.intake.getBack2Value()));
-        telemetry.addData("Has Ball 3 (filtered)", robot.intake.hasBall3());
-        telemetry.addData("Ball 3 Filter Value", round2(robot.intake.getBall3Value()));
-        telemetry.addData("Has Ball 4 (filtered)", robot.intake.hasBall4());
-        telemetry.addData("Ball 4 Filter Value", round2(robot.intake.getBall4Value()));
+        telemetry.addData("Goal Y Offset", Shooter.goalYOffset);
         if (showCurrent) {
             double frontCurrent = robot.intake.getFrontCurrent();
             double transferCurrent = robot.intake.getTransferCurrent();
