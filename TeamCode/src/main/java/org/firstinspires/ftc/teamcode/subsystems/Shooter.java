@@ -164,7 +164,8 @@ public class Shooter {
         double dx = target.x()-currPosition.x();
         double dy = target.y()-currPosition.y();
         double angle = Math.atan2(dy, dx);
-        double turretAngle = Math.toDegrees(-angle + currPosition.heading());
+        // Turret mid position (0 deg) faces the back of the robot, hence the +180
+        double turretAngle = Math.toDegrees(-angle + currPosition.heading()) + 180;
 
         while (Math.abs(turretAngle)>=180){
             if (turretAngle>0){
