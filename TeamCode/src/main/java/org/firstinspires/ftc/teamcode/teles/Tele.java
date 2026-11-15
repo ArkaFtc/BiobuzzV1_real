@@ -164,12 +164,12 @@ public class Tele extends OpMode {
         return angle;
     }
 
-    // PD turn power that points the robot at the closest goal. The target is recomputed
+    // PD turn power that points the back of the robot at the closest goal. The target is recomputed
     // every loop, so it keeps tracking the goal while driving.
     private double headingLockTurn() {
         Pose pose = robot.follower.pose();
         Pose goal = robot.shooter.getClosestGoal(pose, alliance);
-        double targetHeading = Math.atan2(goal.y() - pose.y(), goal.x() - pose.x());
+        double targetHeading = wrapAngle(Math.atan2(goal.y() - pose.y(), goal.x() - pose.x()) + Math.PI);
         double error = wrapAngle(targetHeading - pose.heading());
 
         long now = System.nanoTime();

@@ -64,6 +64,7 @@ public class redAutoNoTurret extends CommandOpMode {
                         // Preloads
                         drive(paths.push()),
                         drive(paths.pushToShoot()),
+                        // Turn in place at the shoot point so the back faces the goal
                         drive(paths.turnToShoot1()),
                         waitMs(100),
                         shoot(),
@@ -167,10 +168,10 @@ public class redAutoNoTurret extends CommandOpMode {
         });
     }
 
-    // Heading (radians) that points the front of the robot at the closest goal, same as tele's heading lock
+    // Heading (radians) that points the back of the robot at the closest goal, same as tele's heading lock
     double goalHeading(Pose pose) {
         Pose goal = closestGoal(pose);
-        return Math.atan2(goal.y() - pose.y(), goal.x() - pose.x());
+        return wrapAngle(Math.atan2(goal.y() - pose.y(), goal.x() - pose.x()) + Math.PI);
     }
 
     static double wrapAngle(double angle) {
