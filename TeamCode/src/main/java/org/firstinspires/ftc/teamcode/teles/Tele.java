@@ -30,9 +30,9 @@ public class Tele extends OpMode {
     public static double hoodStartPos = 0.5;
     public static double hoodIncrements = 0.02;
     private double hoodPos;
-    public static boolean showCurrent = true;
+    public static boolean showCurrent = false; // each current read is a separate hub call, keep off for matches
     private List<LynxModule> hubs;
-    public static double headingKP = 1.60;
+    public static double headingKP = 1;
     public static double headingKD = 0.079;
     private boolean headingLocked = false;
     private double prevHeadingError = 0;
@@ -67,7 +67,8 @@ public class Tele extends OpMode {
                 .state(States.Intake)
                 .onEnter(()->{
                     robot.intake.setDropDown(true);
-                    robot.intake.setPower(1);
+                    robot.intake.setIntakePower(1);
+                    robot.intake.setTransferPower(0.6);
                     robot.shooter.setGate(false);
                 })
                 .loop(()->{
@@ -190,7 +191,6 @@ public class Tele extends OpMode {
         stateMachine.start();
     }
     public void loop() {
-        robot.update();
         double forward = gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double turn = gamepad1.right_stick_x;
@@ -224,6 +224,9 @@ public class Tele extends OpMode {
         // Sets shooter velocity and hood from the distance to the goal (plus the offsets above)
         robot.shooter.aimAtTarget(robot.follower.pose(),alliance);
         stateMachine.update();
+        // Update last so this loop's drive/shooter/intake commands get written to the hardware
+        // right away instead of waiting a loop. It also reads the sensors/pose used next loop.
+        robot.update();
 
         telemetry.addData("Current Pos", robot.follower.pose());
         Pose pose = robot.follower.pose();

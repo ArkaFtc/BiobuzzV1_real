@@ -18,11 +18,15 @@ import org.firstinspires.ftc.teamcode.utils.CachedMotor;
 public class Shooter {
 
     private CachedMotor shooterCachedMotor1, shooterCachedMotor2, shooterEncoder1, shooterEncoder2;
-    private Servo hood, turret1, turret2;
+    private Servo turret1, turret2;
 
-    private CachedServo gate;
+    private CachedServo gate, hood;
 
     VoltageSensor voltageSensor;
+    // Voltage reads aren't bulk cached, so only re-read every voltageReadInterval seconds
+    public static double voltageReadInterval = 0.25;
+    private double cachedVoltage = 12;
+    private long lastVoltageRead = 0;
 
     private PIDFController pidf;
     private SimpleMotorFeedforward feedforward;
@@ -109,7 +113,7 @@ public class Shooter {
 
         gate = new CachedServo(hardwareMap, "gate");
 
-        hood = hardwareMap.servo.get("hood");
+        hood = new CachedServo(hardwareMap, "hood");
 
         pidf = new PIDFController(kP, 0, 0, 0);
         feedforward = new SimpleMotorFeedforward(kS, kV);
@@ -206,7 +210,13 @@ public class Shooter {
     }
 
     public void setDirectPower(double power) {
-        power = power * 12/voltageSensor.getVoltage();
+        long now = System.nanoTime();
+        if (now - lastVoltageRead >= voltageReadInterval * 1e9) {
+            lastVoltageRead = now;
+            double v = voltageSensor.getVoltage();
+            if (v > 0) cachedVoltage = v;
+        }
+        power = power * 12/cachedVoltage;
         shooterCachedMotor1.set(power);
         shooterCachedMotor2.set(-power);
     }
@@ -220,7 +230,6 @@ public class Shooter {
     }
 
     public void setHood(double pos){
-        System.out.println("hood"+pos);
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
     }
 
@@ -255,6 +264,7 @@ public class Shooter {
 
         setDirectPower(Math.max(outputPower,0));
         gate.update();
+        hood.update();
         update_motors();
     }
 

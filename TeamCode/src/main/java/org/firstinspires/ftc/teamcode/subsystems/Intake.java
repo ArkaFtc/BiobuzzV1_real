@@ -21,7 +21,7 @@ public class Intake {
     TouchSensor beamBreakball4;
 
     public static double currentLimit = 4;
-    public static double dropDownPos = 0.49;
+    public static double dropDownPos = 0.39;
     public static double dropUpPos = 0.67;
     public boolean gateOpened = false;
     public double intakePower;
@@ -53,14 +53,24 @@ public class Intake {
         setIntakePower(power);
         setTransferPower(power);
     }
+    // Current reads aren't bulk cached (each is its own hub call), so only check every
+    // currentCheckInterval seconds and reuse the last scale in between
+    public static double currentCheckInterval = 0.1;
+    private long lastCurrentCheck = 0;
+    private double currentScale = 1;
     public void setIntakePower(double power){
-        if (front.isOverCurrent()){
-            double current = front.getCurrentDraw();
-            if (current != 0) {
-                power = power * currentLimit / current;
+        long now = System.nanoTime();
+        if (now - lastCurrentCheck >= currentCheckInterval * 1e9) {
+            lastCurrentCheck = now;
+            currentScale = 1;
+            if (front.isOverCurrent()){
+                double current = front.getCurrentDraw();
+                if (current != 0) {
+                    currentScale = currentLimit / current;
+                }
             }
         }
-        front.set(-power);
+        front.set(-power * currentScale);
     }
 
     public void setTransferPower(double power){
