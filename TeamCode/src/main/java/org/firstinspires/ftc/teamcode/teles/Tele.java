@@ -230,13 +230,14 @@ public class Tele extends OpMode {
         telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, alliance)));
         telemetry.addData("Right Hive Distance", round2(robot.shooter.getRightGoalDistance(pose, alliance)));
         telemetry.addData("Aiming At", robot.shooter.getAimedGoalSide(pose, alliance));
-        telemetry.addData("Heading Locked", headingLocked);
-        telemetry.addData("Heading Error (deg)", headingLocked ? round2(Math.toDegrees(prevHeadingError)) : 0);
-        telemetry.addData("Angle and distance", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), alliance)));
+       // telemetry.addData("Heading Locked", headingLocked);
+        //telemetry.addData("Heading Error (deg)", headingLocked ? round2(Math.toDegrees(prevHeadingError)) : 0);
+        //telemetry.addData("Angle and distance", Arrays.toString(robot.shooter.getAngleDistance(robot.follower.pose(), alliance)));
         telemetry.addData("Shooter Target", robot.shooter.getTargetVelo());
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Power Offset", Shooter.powerOffset);
         telemetry.addData("Hood Offset", Shooter.hoodOffset);
+        /*
         telemetry.addData("Has Back 2 (filtered)", robot.intake.hasBack2());
         telemetry.addData("Back 2 Raw", robot.intake.ball2());
         telemetry.addData("Back 2 Filter Value", round2(robot.intake.getBack2Value()));
@@ -244,6 +245,7 @@ public class Tele extends OpMode {
         telemetry.addData("Ball 3 Filter Value", round2(robot.intake.getBall3Value()));
         telemetry.addData("Has Ball 4 (filtered)", robot.intake.hasBall4());
         telemetry.addData("Ball 4 Filter Value", round2(robot.intake.getBall4Value()));
+        */
         if (showCurrent) {
             double frontCurrent = robot.intake.getFrontCurrent();
             double transferCurrent = robot.intake.getTransferCurrent();

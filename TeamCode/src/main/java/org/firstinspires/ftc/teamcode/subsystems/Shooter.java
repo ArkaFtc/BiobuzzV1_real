@@ -90,8 +90,8 @@ public class Shooter {
     public static double hoodOffset = 0;
 
 
-    public static double upperGateOpenPos = 0.33;
-    public static double upperGateClosedPos = 0.46;
+    public static double upperGateOpenPos = 0.67;
+    public static double upperGateClosedPos = 0.5;
 
 
     private double prevTargetVelocity = 0.0;
@@ -108,8 +108,6 @@ public class Shooter {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         gate = new CachedServo(hardwareMap, "gate");
-        turret1 = hardwareMap.servo.get("turret1");
-        turret2 = hardwareMap.servo.get("turret2");
 
         hood = hardwareMap.servo.get("hood");
 
@@ -209,8 +207,8 @@ public class Shooter {
 
     public void setDirectPower(double power) {
         power = power * 12/voltageSensor.getVoltage();
-        shooterCachedMotor1.set(-power);
-        shooterCachedMotor2.set(power);
+        shooterCachedMotor1.set(power);
+        shooterCachedMotor2.set(-power);
     }
 
     public double getShooter1Current() {

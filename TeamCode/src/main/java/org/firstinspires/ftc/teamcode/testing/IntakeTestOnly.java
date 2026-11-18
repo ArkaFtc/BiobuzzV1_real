@@ -37,7 +37,7 @@ public class IntakeTestOnly extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // Only used to read the beam breaks; the motors and servos above are driven directly
+        // Only used to read the beam br eaks; the motors and servos above are driven directly
         Intake intake = new Intake(hardwareMap);
 
         waitForStart();
