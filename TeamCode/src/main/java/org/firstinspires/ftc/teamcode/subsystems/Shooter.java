@@ -33,7 +33,7 @@ public class Shooter {
     private double ticksPerDeg = 0.00333333;
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = -0.006;
+    public static double diffTurret = 0.002;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.003;
 
@@ -92,6 +92,8 @@ public class Shooter {
 
     public static double powerOffset = 0;
     public static double hoodOffset = 0;
+    // Shifts the aimed goal along y (inches), set from teleop
+    public static double goalYOffset = 0;
 
 
     public static double upperGateOpenPos = 0.67;
@@ -112,6 +114,8 @@ public class Shooter {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         gate = new CachedServo(hardwareMap, "gate");
+        turret1 = hardwareMap.servo.get("turret1");
+        turret2 = hardwareMap.servo.get("turret2");
 
         hood = new CachedServo(hardwareMap, "hood");
 
@@ -126,8 +130,8 @@ public class Shooter {
 
     }
     public void setTurretPos(double pos){
-        turret1.setPosition(pos);
-        turret2.setPosition(1-pos);
+        turret1.setPosition(pos+diffTurret);
+        turret2.setPosition(1-pos-diffTurret);
 
     }
     public void setGate(boolean open){
@@ -143,7 +147,8 @@ public class Shooter {
     }
 
     public Pose getClosestGoal(Pose currPosition, Alliance alliance){
-        return Goal.of(alliance).closest(currPosition);
+        Pose goal = Goal.of(alliance).closest(currPosition);
+        return new Pose(goal.x(), goal.y() + goalYOffset);
     }
 
     public double getLeftGoalDistance(Pose currPosition, Alliance alliance){
@@ -163,7 +168,8 @@ public class Shooter {
         double dx = target.x()-currPosition.x();
         double dy = target.y()-currPosition.y();
         double angle = Math.atan2(dy, dx);
-        double turretAngle = Math.toDegrees(-angle + currPosition.heading());
+        // Turret mid position (0 deg) faces the back of the robot, hence the +180
+        double turretAngle = Math.toDegrees(-angle + currPosition.heading()) + 180;
 
         while (Math.abs(turretAngle)>=180){
             if (turretAngle>0){
@@ -189,6 +195,8 @@ public class Shooter {
         double distance = angleDistance[1];
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
         setHood(Tables.getHoodPosition(distance) + hoodOffset);
+        // Clipped so the turret never goes past its physical limits
+        setTurretPos(Range.clip(convertAngletoPos(angle), turretLowerBound, turretUpperBound));
     }
 
     public void setTargetVelocity(double target) {
@@ -231,6 +239,14 @@ public class Shooter {
 
     public void setHood(double pos){
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
+    }
+
+    // Use instead of update() to run the flywheel at a fixed power, skipping velocity control
+    public void updateDirect(double power) {
+        currentVelocity = getCurrentVelo();
+        setDirectPower(power);
+        gate.update();
+        update_motors();
     }
 
     public void update() {
