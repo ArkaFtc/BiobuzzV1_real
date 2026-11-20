@@ -4,13 +4,11 @@ import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -29,11 +27,6 @@ public class redAutoNoTurret extends CommandOpMode {
     public static double shootMs = 400;
     public static double flowerDownCompletion = 0.5;
     public static double idleFrontPower = 0.6;
-    // Minimum time to let the turret swing onto the goal before opening the gate
-    public static double turretSettleMs = 250;
-
-    public static double leftGoalX = 58, leftGoalY = 86.5;
-    public static double rightGoalX = 58, rightGoalY = 53;
 
     final Alliance alliance = Alliance.RED;
     RedTipsNoTurretPaths paths;
@@ -93,11 +86,10 @@ public class redAutoNoTurret extends CommandOpMode {
                 ),
                 infinite(() -> {
                     robot.update();
-                    // Sets flywheel velocity, hood and turret from the pose relative to the auto goal
-                    Pose goal = closestGoal(robot.pose());
-                    robot.shooter.aimAtTarget(robot.pose(), goal);
-                    telemetry.addData("aiming at", goal);
-                    telemetry.addData("turret angle (deg)", robot.shooter.getAngleDistance(robot.pose(), goal)[0]);
+                    // Turret and flywheel velocity/hood always track the closest goal, same as tele
+                    robot.shooter.aimAtTarget(robot.pose(), alliance);
+                    telemetry.addData("aiming at", robot.shooter.getAimedGoalSide(robot.pose(), alliance));
+                    telemetry.addData("turret angle (deg)", robot.shooter.getAngleDistance(robot.pose(), alliance)[0]);
                     if (intaking)
                         robot.intake.setTransferPower(robot.intake.hasBack2() ? 0 : 1);
 
@@ -114,14 +106,6 @@ public class redAutoNoTurret extends CommandOpMode {
         robot.update();
         telemetry.addData("pose", robot.pose());
         telemetry.update();
-    }
-
-    Pose closestGoal(Pose pose) {
-        Pose left = new Pose(leftGoalX, leftGoalY);
-        Pose right = new Pose(rightGoalX, rightGoalY);
-        double leftDist = Math.hypot(left.x() - pose.x(), left.y() - pose.y());
-        double rightDist = Math.hypot(right.x() - pose.x(), right.y() - pose.y());
-        return leftDist <= rightDist ? left : right;
     }
 
     CommandBuilder drive(Path path) {
@@ -162,14 +146,11 @@ public class redAutoNoTurret extends CommandOpMode {
         });
     }
 
-    // Turret aims every loop; wait for spin-up and turret settle, then same order as tele: open gate, then feed everything through
+    // Turret is already tracking; wait for spin-up, then same order as tele: open gate, then feed everything through
     CommandBuilder shoot() {
         return sequential(
-                parallel(
-                        waitMs(turretSettleMs),
-                        waitUntil(() -> Math.abs(robot.shooter.getTargetVelo() - robot.shooter.getCurrentVelocity()) < velocityTolerance)
-                                .raceWith(waitMs(spinUpTimeoutMs))
-                ),
+                waitUntil(() -> Math.abs(robot.shooter.getTargetVelo() - robot.shooter.getCurrentVelocity()) < velocityTolerance)
+                        .raceWith(waitMs(spinUpTimeoutMs)),
                 instant(() -> {
                     intaking = false;
                     robot.flowermech.setFlowerArm(false);
