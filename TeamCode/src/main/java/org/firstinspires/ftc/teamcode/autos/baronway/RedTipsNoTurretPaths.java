@@ -14,16 +14,14 @@ public class RedTipsNoTurretPaths {
     private final Pose push = poseFactory.of(8, 100, 270);
     private final Pose pushToShoot = poseFactory.of(58, 16, -21.946);
     private final Pose pushToShootControl1 = poseFactory.of(16.6731, 32.6519, 0);
-    private final Pose turnToShoot1Start = poseFactory.of(58, 16, -22);
-    // Back of the robot facing the right goal (58, 53)
-    private final Pose turnToShoot1 = poseFactory.of(58, 16, -90);
     private final Pose intakeGarden = poseFactory.of(7, 8, -178.5312);
     private final Pose intakeGardenControl1 = poseFactory.of(46, 9, 0);
-    private final Pose gardenToShoot2 = poseFactory.of(60, 125, -89.2439);
+    // Shot headings only need to keep the goal inside the turret's range (about +-140 deg off the back);
+    // the turret does the fine aiming
+    // Ends with the back roughly facing the left goal (58, 86.5)
+    private final Pose gardenToShoot2 = poseFactory.of(60, 125, 87.026);
     private final Pose gardenToShoot2Control1 = poseFactory.of(61.9787, 20.2935, 0);
     private final Pose gardenToShoot2Control2 = poseFactory.of(61.588, 4.6731, 0);
-    // Shot 2 aims after arriving, leaving the back facing the left goal (58, 86.5)
-    private final Pose toFlower1Start = poseFactory.of(60, 125, 87.026);
     private final Pose toFlower1 = poseFactory.of(47, 108, 90);
     private final Pose flower1 = poseFactory.of(47, 130, 90);
     // End heading has the back facing the left goal (58, 86.5)
@@ -32,7 +30,8 @@ public class RedTipsNoTurretPaths {
     private final Pose toFlower2 = poseFactory.of(22, 47, -94.0783);
     private final Pose toFlower2Control1 = poseFactory.of(26.6944, 112.8407, 0);
     private final Pose flower2 = poseFactory.of(10, 47, 180);
-    private final Pose flower2ToShoot = poseFactory.of(58, 16, 121.5466);
+    // Ends with the back facing the right goal (58, 53)
+    private final Pose flower2ToShoot = poseFactory.of(58, 16, -90);
     private final Pose flower2ToShootControl1 = poseFactory.of(28.75, 11.75, 0);
     private final Pose park = poseFactory.of(8, 100, 97.2519);
     private final Pose parkControl1 = poseFactory.of(16.4639, 33.4861, 0);
@@ -49,20 +48,16 @@ public class RedTipsNoTurretPaths {
         return Paths.curve(push, pushToShootControl1, pushToShoot).tangent();
     }
 
-    public Path turnToShoot1() {
-        return Paths.line(turnToShoot1Start, turnToShoot1).linear(turnToShoot1Start, turnToShoot1);
-    }
-
     public Path intakeGarden() {
-        return Paths.curve(turnToShoot1, intakeGardenControl1, intakeGarden).tangent();
+        return Paths.curve(pushToShoot, intakeGardenControl1, intakeGarden).tangent();
     }
 
     public Path gardenToShoot2() {
-        return Paths.curve(intakeGarden, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2).reverseTangent();
+        return Paths.curve(intakeGarden, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2).linear(intakeGarden, gardenToShoot2);
     }
 
     public Path toFlower1() {
-        return Paths.line(toFlower1Start, toFlower1).linear(toFlower1Start, toFlower1);
+        return Paths.line(gardenToShoot2, toFlower1).linear(gardenToShoot2, toFlower1);
     }
 
     public Path flower1() {
@@ -82,7 +77,7 @@ public class RedTipsNoTurretPaths {
     }
 
     public Path flower2ToShoot() {
-        return Paths.curve(flower2, flower2ToShootControl1, flower2ToShoot).reverseTangent();
+        return Paths.curve(flower2, flower2ToShootControl1, flower2ToShoot).linear(flower2, flower2ToShoot);
     }
 
     public Path park() {
