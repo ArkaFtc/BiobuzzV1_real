@@ -47,7 +47,7 @@ public class TipsNoTurretPaths {
         }
 
         start = poseFactory.of(7, 62, 270);
-        push = poseFactory.of(8, 100, 270);
+        push = poseFactory.of(8, 90, 270);
         pushToShoot = poseFactory.of(58, 16, -21.946);
         pushToShootControl1 = poseFactory.of(16.6731, 32.6519, 0);
         intakeGarden = poseFactory.of(7, 4, -178.5312);

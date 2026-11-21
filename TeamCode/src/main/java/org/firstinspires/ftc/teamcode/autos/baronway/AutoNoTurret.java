@@ -14,6 +14,7 @@ import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.CommandOpMode;
 
@@ -24,12 +25,11 @@ public abstract class AutoNoTurret extends CommandOpMode {
     public static double spinUpTimeoutMs = 1500;
     public static double velocityTolerance = 40;
     public static double gateOpenMs = 100;
-    public static double shootMs = 800;
-    // Intake + transfer power while feeding a shot
+    public static double shootMs = 1000;
     public static double shootFeedPower = 0.7;
     public static double flowerDownCompletion = 0.5;
     // How long the flower arm stays down before lifting and moving on
-    public static double flowerArmDownMs = 1500;
+    public static double flowerArmDownMs = 3000;
     // Path completion on the way back from a flower at which the intake dropdown goes down
     public static double flower1ReturnDropCompletion = 0.1;
     public static double flower2ReturnDropCompletion = 0.5;
@@ -75,12 +75,12 @@ public abstract class AutoNoTurret extends CommandOpMode {
                         // Preloads
                         drive(paths.push()),
                         drive(paths.pushToShoot()),
+                        hold(),
                         shoot(),
 
                         // Garden
                         intakeOn(),
                         drive(paths.intakeGarden().with(Constants.foresightConfig.maxPathSpeed.at(gardenIntakeSpeed))),
-                        hold(),
                         drive(paths.gardenToShoot2()),
                         turnTo(paths.shoot2Turned()),
                         shoot(),
@@ -89,8 +89,8 @@ public abstract class AutoNoTurret extends CommandOpMode {
                         intakeOn(),
                         drive(paths.toFlower1()),
                         flowerDrive(paths.flower1()),
-                        hold(),
                         flowerReturn(paths.flower1ToShoot(), flower1ReturnDropCompletion),
+                        hold(),
                         shoot(),
 
                         // Flower 2
@@ -109,7 +109,6 @@ public abstract class AutoNoTurret extends CommandOpMode {
                     robot.update();
                     // Turret and flywheel velocity/hood always track the closest goal, same as tele
                     robot.shooter.aimAtTarget(robot.pose(), alliance);
-                    telemetry.addData("aiming at", robot.shooter.getAimedGoalSide(robot.pose(), alliance));
                     telemetry.addData("turret angle (deg)", robot.shooter.getAngleDistance(robot.pose(), alliance)[0]);
                     if (intaking)
                         robot.intake.setTransferPower(robot.intake.hasBack2() ? 0 : 1);

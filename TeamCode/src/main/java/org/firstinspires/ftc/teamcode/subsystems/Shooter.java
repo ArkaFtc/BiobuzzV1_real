@@ -304,13 +304,13 @@ public class Shooter {
         };
 
         private static final double[] HOOD = {
-                0.8, 0.68, 0.6, 0.54, 0.44,
+                0.8, 0.66, 0.58, 0.54, 0.44,
                 0.426, 0.4, 0.38, 0.24, 0.2
         };
 
         private static final double[] VELOCITY = {
-                1440, 1440, 1440, 1460, 1480,
-                1540, 1540, 1580, 1680, 1800
+                1460, 1460, 1460, 1490, 1510,
+                1570, 1570, 1610, 1710, 1830
         };
 
         public static double getHoodPosition(double distance) {
