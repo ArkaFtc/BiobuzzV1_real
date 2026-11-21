@@ -52,8 +52,8 @@ public class Shooter {
     public static double turretUpperBound = 0.95;
     public static double turretLowerBound = 0.05;
 
-    static Pose RightBlueGoalPose = new Pose(84, 86.5);
-    static Pose LeftBlueGoalPose = new Pose(84, 53);
+    static Pose RightBlueGoalPose = new Pose(80, 86.5);
+    static Pose LeftBlueGoalPose = new Pose(80, 53);
     static Pose RightRedGoalPose = new Pose(58, 53);
     static Pose LeftRedGoalPose = new Pose(58, 86.5);
 
@@ -299,18 +299,18 @@ public class Shooter {
     }
     public static class Tables {
         private static final double[] DISTANCES = {
-                17.17, 21.5, 28, 35, 40,
-                45, 49, 54, 60.7, 63
+                23, 27.7, 33, 38.91, 45.9,
+                52.5, 56.6, 64.76, 74, 86
         };
 
         private static final double[] HOOD = {
-                0.8, 0.76, 0.68, 0.6, 0.54,
-                0.48, 0.48, 0.42, 0.4, 0.38
+                0.8, 0.68, 0.6, 0.54, 0.44,
+                0.426, 0.4, 0.38, 0.24, 0.2
         };
 
         private static final double[] VELOCITY = {
-                1340, 1400, 1420, 1460, 1500,
-                1540, 1580, 1600, 1630, 1650
+                1440, 1440, 1440, 1460, 1480,
+                1540, 1540, 1580, 1680, 1800
         };
 
         public static double getHoodPosition(double distance) {
