@@ -16,16 +16,16 @@ public class RedTipsNoTurretPaths {
     private final Pose pushToShootControl1 = poseFactory.of(16.6731, 32.6519, 0);
     private final Pose intakeGarden = poseFactory.of(7, 8, -178.5312);
     private final Pose intakeGardenControl1 = poseFactory.of(46, 9, 0);
-    private final Pose gardenToShoot2 = poseFactory.of(60, 125, -89.2439);
+    private final Pose gardenToShoot2 = poseFactory.of(60, 125, 90);
     private final Pose gardenToShoot2Control1 = poseFactory.of(61.9787, 20.2935, 0);
     private final Pose gardenToShoot2Control2 = poseFactory.of(61.588, 4.6731, 0);
     private final Pose toFlower1 = poseFactory.of(47, 108, 90);
-    private final Pose flower1 = poseFactory.of(47, 130, 90);
+    private final Pose flower1 = poseFactory.of(47, 127, 90);
     private final Pose flower1ToShoot = poseFactory.of(60, 125, 87.026);
     private final Pose flower1ToShootControl1 = poseFactory.of(54.8287, 99.0907, 0);
     private final Pose toFlower2 = poseFactory.of(22, 47, -94.0783);
     private final Pose toFlower2Control1 = poseFactory.of(26.6944, 112.8407, 0);
-    private final Pose flower2 = poseFactory.of(10, 47, 180);
+    private final Pose flower2 = poseFactory.of(13, 47, 180);
     private final Pose flower2ToShoot = poseFactory.of(58, 16, 121.5466);
     private final Pose flower2ToShootControl1 = poseFactory.of(28.75, 11.75, 0);
     private final Pose park = poseFactory.of(8, 100, 97.2519);
@@ -47,12 +47,15 @@ public class RedTipsNoTurretPaths {
         return Paths.curve(pushToShoot, intakeGardenControl1, intakeGarden).tangent();
     }
 
+    // Rotates from ~180 down to 90 (clockwise) so the back-facing turret points at the goal;
+    // reverseTangent ended at -90, which put the goal 180 deg off the turret
     public Path gardenToShoot2() {
-        return Paths.curve(intakeGarden, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2).reverseTangent();
+        return Paths.curve(intakeGarden, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2).linear(intakeGarden, gardenToShoot2);
     }
 
     public Path toFlower1() {
-        return Paths.line(gardenToShoot2, toFlower1).linear(gardenToShoot2, toFlower1);
+        // Already at 90 after shot 2, so no turn needed on the way to flower 1
+        return Paths.line(gardenToShoot2, toFlower1).constant(toFlower1);
     }
 
     public Path flower1() {

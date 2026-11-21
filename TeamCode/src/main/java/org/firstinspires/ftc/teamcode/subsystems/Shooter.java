@@ -30,10 +30,10 @@ public class Shooter {
 
     private PIDFController pidf;
     private SimpleMotorFeedforward feedforward;
-    private double ticksPerDeg = 0.00333333;
+    private double ticksPerDeg = 0.0029444444444444444;
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = 0.002;
+    public static double diffTurret = 0.004;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.003;
 
@@ -48,9 +48,9 @@ public class Shooter {
     public static double hoodLowerBound = 0.09;
     public static double hoodUpperBound = 0.8;
 
-    public static double turretMidPos = 0.5;
-    public static double turretUpperBound = 0.97;
-    public static double turretLowerBound = 0.03;
+    public static double turretMidPos = 0.49;
+    public static double turretUpperBound = 0.95;
+    public static double turretLowerBound = 0.05;
 
     static Pose RightBlueGoalPose = new Pose(84, 86.5);
     static Pose LeftBlueGoalPose = new Pose(84, 53);
@@ -131,7 +131,7 @@ public class Shooter {
     }
     public void setTurretPos(double pos){
         turret1.setPosition(pos+diffTurret);
-        turret2.setPosition(1-pos-diffTurret);
+        turret2.setPosition(pos-diffTurret);
 
     }
     public void setGate(boolean open){
@@ -225,8 +225,8 @@ public class Shooter {
             if (v > 0) cachedVoltage = v;
         }
         power = power * 12/cachedVoltage;
-        shooterCachedMotor1.set(power);
-        shooterCachedMotor2.set(-power);
+        shooterCachedMotor1.set(-power);
+        shooterCachedMotor2.set(power);
     }
 
     public double getShooter1Current() {

@@ -12,6 +12,7 @@ import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.CommandOpMode;
@@ -27,6 +28,8 @@ public class redAutoNoTurret extends CommandOpMode {
     public static double shootMs = 400;
     public static double flowerDownCompletion = 0.5;
     public static double idleFrontPower = 0.6;
+    // Speed cap (in/s) for the garden intake path; max achievable forward is ~71
+    public static double gardenIntakeSpeed = 30;
 
     final Alliance alliance = Alliance.RED;
     RedTipsNoTurretPaths paths;
@@ -59,7 +62,7 @@ public class redAutoNoTurret extends CommandOpMode {
 
                         // Garden
                         intakeOn(),
-                        drive(paths.intakeGarden()),
+                        drive(paths.intakeGarden().with(Constants.foresightConfig.maxPathSpeed.at(gardenIntakeSpeed))),
                         hold(),
                         drive(paths.gardenToShoot2()),
                         shoot(),
