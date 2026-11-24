@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.utils.Alliance;
 // The turret auto-aims at the closest red goal.
 // Controls (gamepad1): A = stop/hold, Y = restart intake, B = shoot,
 // dpad up/down = target velocity, dpad left/right = hood, left bumper = relocalize,
-// left/right trigger = nudge turret.
+// left/right trigger = nudge turret, X / options = shoot transfer power -/+.
 @Configurable
 @TeleOp
 public class RedStateMachineTesting extends OpMode {
@@ -31,6 +31,8 @@ public class RedStateMachineTesting extends OpMode {
     public static double hoodIncrements = 0.02;
     public static double turretNudge = 0.01;
     public static double turretOffset = 0;
+    public static double shootTransferPower = 1;
+    public static double shootTransferIncrements = 0.05;
     private boolean prevLeftTrigger = false, prevRightTrigger = false;
 
     private final Pose relocalizePos = new Pose(8, 37, Math.toRadians(0));
@@ -98,10 +100,11 @@ public class RedStateMachineTesting extends OpMode {
 
                 .state(States.Shoot)
                 .onEnter(() -> {
-                    robot.intake.setPower(1);
+                    robot.intake.setIntakePower(1);
+                    robot.intake.setTransferPower(shootTransferPower);
                     robot.shooter.setGate(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.8, States.Intake)
 
                 .build();
     }
@@ -147,6 +150,12 @@ public class RedStateMachineTesting extends OpMode {
             turretOffset += turretNudge;
         prevLeftTrigger = leftTrigger;
         prevRightTrigger = rightTrigger;
+        // X / options lower / raise the transfer power used while shooting
+        if (gamepad1.xWasPressed())
+            shootTransferPower -= shootTransferIncrements;
+        if (gamepad1.optionsWasPressed())
+            shootTransferPower += shootTransferIncrements;
+        shootTransferPower = Range.clip(shootTransferPower, 0, 1);
         targetVelo = Math.max(targetVelo, 0);
         // Keep within the servo limits so extra presses past the end don't build up
         hoodPos = Range.clip(hoodPos, Shooter.hoodLowerBound, Shooter.hoodUpperBound);
@@ -162,6 +171,7 @@ public class RedStateMachineTesting extends OpMode {
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Hood Pos", hoodPos);
         telemetry.addData("Turret Offset", round2(turretOffset));
+        telemetry.addData("Shoot Transfer Power", round2(shootTransferPower));
         Pose pose = robot.follower.pose();
         telemetry.addData("Current Pos", pose);
         telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, Alliance.RED)));
