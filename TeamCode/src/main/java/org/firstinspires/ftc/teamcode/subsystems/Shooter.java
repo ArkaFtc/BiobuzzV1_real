@@ -52,10 +52,10 @@ public class Shooter {
     public static double turretUpperBound = 0.95;
     public static double turretLowerBound = 0.05;
 
-    static Pose RightBlueGoalPose = new Pose(80, 86.5);
-    static Pose LeftBlueGoalPose = new Pose(80, 53);
-    static Pose RightRedGoalPose = new Pose(58, 53);
-    static Pose LeftRedGoalPose = new Pose(58, 86.5);
+    static Pose RightBlueGoalPose = new Pose(83, 87);
+    static Pose LeftBlueGoalPose = new Pose(83, 51);
+    static Pose RightRedGoalPose = new Pose(60, 51);
+    static Pose LeftRedGoalPose = new Pose(60, 87);
 
 
     // Each alliance has a left and right goal; the shooter aims at whichever is closer
