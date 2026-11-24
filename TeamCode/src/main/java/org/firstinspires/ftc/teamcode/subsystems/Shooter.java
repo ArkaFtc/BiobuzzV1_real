@@ -33,7 +33,7 @@ public class Shooter {
     private double ticksPerDeg = 0.0029444444444444444;
     private double targetVelocity = 0.0;
     private double currentVelocity = 0.0;
-    public static double diffTurret = 0.004;
+    public static double diffTurret = 0.006;
     // --- Flywheel PIDF coefficients ---
     public static double kP = 0.004;
 
@@ -48,7 +48,7 @@ public class Shooter {
     public static double hoodLowerBound = 0.09;
     public static double hoodUpperBound = 0.8;
 
-    public static double turretMidPos = 0.49;
+    public static double turretMidPos = 0.5;
     public static double turretUpperBound = 0.95;
     public static double turretLowerBound = 0.05;
 
@@ -317,18 +317,18 @@ public class Shooter {
     }
     public static class Tables {
         private static final double[] DISTANCES = {
-                23, 27.7, 33, 38.91, 45.9,
-                52.5, 56.6, 64.76, 74, 86
+                26.5, 34.5, 42, 48,
+                54.3, 66, 76, 87
         };
 
         private static final double[] HOOD = {
-                0.8, 0.66, 0.58, 0.54, 0.44,
-                0.426, 0.4, 0.38, 0.24, 0.2
+                0.7, 0.58, 0.54, 0.5,
+                0.4, 0.34, 0.32, 0.24
         };
 
         private static final double[] VELOCITY = {
-                1460, 1460, 1460, 1490, 1510,
-                1570, 1570, 1610, 1710, 1830
+                1440, 1440, 1480, 1540,
+                1550, 1640, 1720, 1780
         };
 
         public static double getHoodPosition(double distance) {
