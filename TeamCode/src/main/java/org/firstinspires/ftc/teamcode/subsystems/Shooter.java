@@ -35,7 +35,7 @@ public class Shooter {
     private double currentVelocity = 0.0;
     public static double diffTurret = 0.004;
     // --- Flywheel PIDF coefficients ---
-    public static double kP = 0.003;
+    public static double kP = 0.004;
 
     public static double kS = 0.0613641; // Static feedforward
     public static double kV = 0.00042;
@@ -195,8 +195,26 @@ public class Shooter {
         double distance = angleDistance[1];
         setTargetVelocity(Tables.getShooterVelocity(distance) + powerOffset);
         setHood(Tables.getHoodPosition(distance) + hoodOffset);
+        setTurretAngle(angle);
+    }
+
+    // Points only the turret at the closest goal, leaving velocity and hood alone
+    public void aimTurret(Pose currPosition, Alliance alliance){
+        aimTurret(currPosition, alliance, 0);
+    }
+
+    // posOffset is added to the servo position after aiming (for manual nudging)
+    public void aimTurret(Pose currPosition, Alliance alliance, double posOffset){
+        setTurretAngle(getAngleDistance(currPosition, alliance)[0], posOffset);
+    }
+
+    private void setTurretAngle(double angle){
+        setTurretAngle(angle, 0);
+    }
+
+    private void setTurretAngle(double angle, double posOffset){
         // Clipped so the turret never goes past its physical limits
-        setTurretPos(Range.clip(convertAngletoPos(angle), turretLowerBound, turretUpperBound));
+        setTurretPos(Range.clip(convertAngletoPos(angle) + posOffset, turretLowerBound, turretUpperBound));
     }
 
     public void setTargetVelocity(double target) {

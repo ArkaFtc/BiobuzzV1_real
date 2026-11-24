@@ -15,8 +15,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 
 // Same intake/shoot state machine as TeleOp, locked to red, with manual shooter velocity and hood.
+// The turret auto-aims at the closest red goal.
 // Controls (gamepad1): A = stop/hold, Y = restart intake, B = shoot,
-// dpad up/down = target velocity, dpad left/right = hood, left bumper = relocalize.
+// dpad up/down = target velocity, dpad left/right = hood, left bumper = relocalize,
+// left/right trigger = nudge turret.
 @Configurable
 @TeleOp
 public class RedStateMachineTesting extends OpMode {
@@ -27,6 +29,9 @@ public class RedStateMachineTesting extends OpMode {
     public static double veloIncrements = 20;
     public static double hoodPos = 0.5;
     public static double hoodIncrements = 0.02;
+    public static double turretNudge = 0.01;
+    public static double turretOffset = 0;
+    private boolean prevLeftTrigger = false, prevRightTrigger = false;
 
     private final Pose relocalizePos = new Pose(8, 37, Math.toRadians(0));
 
@@ -133,18 +138,30 @@ public class RedStateMachineTesting extends OpMode {
             hoodPos += hoodIncrements;
         if (gamepad1.dpadLeftWasPressed())
             hoodPos -= hoodIncrements;
+        // Triggers nudge the turret once per press (left = -, right = +)
+        boolean leftTrigger = gamepad1.left_trigger > 0.5;
+        boolean rightTrigger = gamepad1.right_trigger > 0.5;
+        if (leftTrigger && !prevLeftTrigger)
+            turretOffset -= turretNudge;
+        if (rightTrigger && !prevRightTrigger)
+            turretOffset += turretNudge;
+        prevLeftTrigger = leftTrigger;
+        prevRightTrigger = rightTrigger;
         targetVelo = Math.max(targetVelo, 0);
         // Keep within the servo limits so extra presses past the end don't build up
         hoodPos = Range.clip(hoodPos, Shooter.hoodLowerBound, Shooter.hoodUpperBound);
 
         robot.shooter.setTargetVelocity(targetVelo);
         robot.shooter.setHood(hoodPos);
+        // Turret tracks the closest red goal; velocity and hood stay manual
+        robot.shooter.aimTurret(robot.follower.pose(), Alliance.RED, turretOffset);
 
         stateMachine.update();
 
         telemetry.addData("Target Velocity", targetVelo);
         telemetry.addData("Shooter Velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("Hood Pos", hoodPos);
+        telemetry.addData("Turret Offset", round2(turretOffset));
         Pose pose = robot.follower.pose();
         telemetry.addData("Current Pos", pose);
         telemetry.addData("Left Hive Distance", round2(robot.shooter.getLeftGoalDistance(pose, Alliance.RED)));

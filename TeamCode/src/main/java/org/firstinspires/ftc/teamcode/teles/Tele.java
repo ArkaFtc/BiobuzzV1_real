@@ -152,6 +152,8 @@ public class Tele extends OpMode {
         return Math.round(value * 100) / 100.0;
     }
     public void start() {
+        // Move the flower arm to idle on start (not during init)
+        robot.flowermech.setFlowerArm(false);
         stateMachine.start();
     }
     public void loop() {
