@@ -37,7 +37,7 @@ public class Tele extends OpMode {
         FlowerRelease, Got4,
         HoldBalls,
         OpenGate,
-        Shoot
+        Shoot, ShootAgain
     }
     public Tele(Alliance alliance) {
         this.alliance = alliance;
@@ -135,10 +135,16 @@ public class Tele extends OpMode {
                 .transitionTimed(0.1, States.Shoot)
                 .state(States.Shoot)
                 .onEnter(()->{
+                    robot.intake.setPower(0.8);
+                    robot.shooter.setGate(true);
+                })
+                .transitionTimed(0.4, States.ShootAgain)
+                .state(States.ShootAgain)
+                .onEnter(()->{
                     robot.intake.setPower(1);
                     robot.shooter.setGate(true);
                 })
-                .transitionTimed(0.3, States.Intake)
+                .transitionTimed(0.2, States.Intake)
 
                 .build();
     }
