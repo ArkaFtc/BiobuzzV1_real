@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-24T01:25:29.883Z",
+  "timestamp": "2026-11-24T01:32:01.728Z",
   "startPoint": {
     "x": 55,
     "y": 8,
@@ -290,8 +290,33 @@
         }
       ],
       "heading": {
-        "type": "tangential",
-        "reverse": true
+        "type": "piecewise",
+        "reverse": true,
+        "degrees": 0,
+        "startDeg": 0,
+        "endDeg": 0,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3903345503493213,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": -90
+              }
+            },
+            {
+              "startProgress": 0.3903345503493213,
+              "endProgress": 1,
+              "interpolationType": "tangential",
+              "reversed": true,
+              "continueFromPrevious": false
+            }
+          ]
+        }
       }
     }
   ],
