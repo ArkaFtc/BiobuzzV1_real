@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-24T01:32:01.728Z",
+  "timestamp": "2026-11-24T01:33:48.752Z",
   "startPoint": {
     "x": 55,
     "y": 8,
@@ -301,10 +301,10 @@
               "startProgress": 0,
               "endProgress": 0.3903345503493213,
               "interpolationType": "linear",
-              "reversed": false,
+              "reversed": true,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 0,
+                "startDeg": 90,
                 "endDeg": -90
               }
             },
