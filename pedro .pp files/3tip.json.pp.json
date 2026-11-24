@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-22T20:23:26.001Z",
+  "timestamp": "2026-11-24T01:25:29.883Z",
   "startPoint": {
     "x": 55,
     "y": 8,
@@ -84,8 +84,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mws9k7xm-s7muip",
+      "color": "#edc948",
+      "name": "flower1",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 1000,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 47.01471717374359,
         "y": 128.02715315732385
@@ -111,18 +118,18 @@
             }
           ]
         }
-      },
-      "color": "#edc948",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 1000,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "flower1"
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mws9l3od-hg9etg",
+      "color": "#e15759",
+      "name": "toShoot3",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 6,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 47,
         "y": 116
@@ -131,18 +138,18 @@
       "heading": {
         "type": "tangential",
         "reverse": true
-      },
-      "color": "#e15759",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 6,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "toShoot3"
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mws9r0hf-lc9efj",
+      "color": "#edc948",
+      "name": "preloadIntake",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 300,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 8,
         "y": 97.5
@@ -160,43 +167,47 @@
       "heading": {
         "type": "tangential",
         "reverse": false
-      },
-      "color": "#edc948",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 300,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "preloadIntake"
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mws9umo4-hnguwt",
-      "endPoint": {
-        "x": 31.93570400419689,
-        "y": 14.820825622195288
-      },
-      "controlPoints": [
-        {
-          "x": 31.920861483966092,
-          "y": 141.5
-        }
-      ],
-      "heading": {
-        "type": "tangential",
-        "reverse": true
-      },
       "color": "#e15759",
+      "name": "toShoot4",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 600,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "toShoot4"
+      "kind": "atomic",
+      "endPoint": {
+        "x": 52.384244315358856,
+        "y": 18.871950366571564
+      },
+      "controlPoints": [
+        {
+          "x": 31.920861483966092,
+          "y": 141.5
+        },
+        {
+          "x": 14.441538876352112,
+          "y": 18.952715114182773
+        }
+      ],
+      "heading": {
+        "type": "tangential",
+        "reverse": true
+      }
     },
     {
-      "kind": "atomic",
       "id": "line-mws9z0qe-jh85aa",
+      "color": "#9c755f",
+      "name": "flower2",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 1000,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14,
         "y": 47
@@ -214,18 +225,18 @@
       "heading": {
         "type": "tangential",
         "reverse": false
-      },
-      "color": "#9c755f",
+      }
+    },
+    {
+      "id": "line-mwsa452c-iax6d8",
+      "color": "#59a14f",
+      "name": "toShoot5",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 1000,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "flower2"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mwsa452c-iax6d8",
       "endPoint": {
         "x": 44,
         "y": 19
@@ -237,7 +248,7 @@
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "tangential",
         "reverse": true,
         "degrees": 0,
         "startDeg": 180,
@@ -256,18 +267,18 @@
             }
           ]
         }
-      },
-      "color": "#59a14f",
+      }
+    },
+    {
+      "id": "line-mwsa7juo-o6hojx",
+      "color": "#4e79a7",
+      "name": "park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "toShoot5"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mwsa7juo-o6hojx",
       "endPoint": {
         "x": 10,
         "y": 90
@@ -281,14 +292,7 @@
       "heading": {
         "type": "tangential",
         "reverse": true
-      },
-      "color": "#4e79a7",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "park"
+      }
     }
   ],
   "shapes": [
