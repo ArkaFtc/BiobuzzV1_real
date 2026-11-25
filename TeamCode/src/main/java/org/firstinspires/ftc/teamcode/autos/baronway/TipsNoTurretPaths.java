@@ -1,124 +1,179 @@
 package org.firstinspires.ftc.teamcode.autos.baronway;
 
 import com.pedropathing.api.Paths;
-
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 
+// Paths for AutoNoTurret, from the four .pp.json files (good1good2, good1bad2, bad1good2, bad1bad2).
+// Points are drawn for RED. For BLUE every point is mirrored across the middle of the field (x -> 144 - x, heading -> 180 - heading).
+// Suffixes say which cases use a point/path: G1G2, G1B2, B1G2, B1B2 (good/bad hive check 1, good/bad hive check 2).
 public class TipsNoTurretPaths {
-
-    // Points below are written for red. Blue is the same field rotated 180 deg about the center
-    // (same symmetry as the tele relocalize poses): (x, y, h) -> (2c - x, 2c - y, h + 180)
-    public static double fieldCenter = 72;
+    private final PoseFactory poseFactory = PoseFactory.degrees();
+    private final boolean blue;
 
     private final Pose start;
-    private final Pose push;
-    private final Pose pushToShoot;
-    private final Pose pushToShootControl1;
-    private final Pose intakeGarden;
-    private final Pose intakeGardenControl1;
-    private final Pose gardenToShoot2;
-    // Turned in place after gardenToShoot2 so the back-facing turret can reach the goal
-    private final Pose shoot2Turned;
-    private final Pose gardenToShoot2Control1;
-    private final Pose gardenToShoot2Control2;
-    private final Pose toFlower1;
-    private final Pose flower1;
-    private final Pose flower1ToShoot;
-    private final Pose flower1ToShootControl1;
-    private final Pose toFlower2;
-    private final Pose toFlower2Control1;
-    private final Pose flower2;
-    private final Pose flower2ToShoot;
-    private final Pose flower2ToShootControl1;
-    private final Pose park;
-    private final Pose parkControl1;
+    private final Pose gardenIntake;
+    private final Pose toShoot2, toShoot2Control1, toShoot2Control2;
+    private final Pose flower1Intake, flower1IntakeControl1B1G2B1B2;
+    private final Pose toShoot3;
+    private final Pose preloadIntake, preloadIntakeControl1, preloadIntakeControl2;
+    private final Pose toShoot4G1G2G1B2, toShoot4G1G2G1B2Control1, toShoot4G1G2G1B2Control2;
+    private final Pose toShoot4B1G2B1B2, toShoot4B1G2B1B2Control1, toShoot4B1G2B1B2Control2;
+    private final Pose return1ShootG1B2, return1ShootG1B2Control1, return1ShootG1B2Control2;
+    private final Pose return1ShootB1G2B1B2, return1ShootB1G2B1B2Control1, return1ShootB1G2B1B2Control2;
+    private final Pose flower2Intake;
+    private final Pose flower2IntakeControl1G1G2, flower2IntakeControl2G1G2;
+    private final Pose flower2IntakeControl1G1B2B1G2B1B2, flower2IntakeControl2G1B2B1G2B1B2;
+    private final Pose toShoot5, toShoot5Control1;
+    private final Pose return2ShootB1B2, return2ShootB1B2Control1, return2ShootB1B2Control2;
+    private final Pose park, parkControl1;
 
     public TipsNoTurretPaths(Alliance alliance) {
-        PoseFactory poseFactory = PoseFactory.degrees();
-        if (alliance == Alliance.BLUE) {
-            poseFactory = poseFactory.map(p -> new Pose(
-                    2 * fieldCenter - p.x(),
-                    2 * fieldCenter - p.y(),
-                    p.heading() + Math.PI));
-        }
+        blue = alliance == Alliance.BLUE;
 
-        start = poseFactory.of(7, 62, 270);
-        push = poseFactory.of(8, 90, 270);
-        pushToShoot = poseFactory.of(58, 16, -21.946);
-        pushToShootControl1 = poseFactory.of(16.6731, 32.6519, 0);
-        intakeGarden = poseFactory.of(7, 4, -178.5312);
-        intakeGardenControl1 = poseFactory.of(46, 7, 0);
-        gardenToShoot2 = poseFactory.of(60, 125, -89.2439);
-        shoot2Turned = poseFactory.of(60, 125, 90);
-        gardenToShoot2Control1 = poseFactory.of(61.9787, 20.2935, 0);
-        gardenToShoot2Control2 = poseFactory.of(61.588, 4.6731, 0);
-        toFlower1 = poseFactory.of(47, 108, 90);
-        flower1 = poseFactory.of(47, 127, 90);
-        flower1ToShoot = poseFactory.of(60, 125, 87.026);
-        flower1ToShootControl1 = poseFactory.of(54.8287, 99.0907, 0);
-        toFlower2 = poseFactory.of(22, 47, -94.0783);
-        toFlower2Control1 = poseFactory.of(26.6944, 112.8407, 0);
-        flower2 = poseFactory.of(13, 47, 180);
-        flower2ToShoot = poseFactory.of(58, 16, 121.5466);
-        flower2ToShootControl1 = poseFactory.of(28.75, 11.75, 0);
-        park = poseFactory.of(8, 100, 97.2519);
-        parkControl1 = poseFactory.of(16.4639, 33.4861, 0);
+        start = p(30, 8, 180);
+        gardenIntake = p(8.4964, 7, 180);
+        toShoot2 = p(47, 120, 90);
+        toShoot2Control1 = p(83.0427, 15.2898, 0);
+        toShoot2Control2 = p(64.382, 116.232, 0);
+        flower1Intake = p(47.0147, 130.0272, 90);
+        flower1IntakeControl1B1G2B1B2 = p(17.9707, 68.6686, 0);
+        toShoot3 = p(47, 116, 90);
+        preloadIntake = p(8, 99.5, -90);
+        preloadIntakeControl1 = p(8, 113, 0);
+        preloadIntakeControl2 = p(8.49, 129.4294, 0);
+        toShoot4G1G2G1B2 = p(52.3842, 18.872, 180);
+        toShoot4G1G2G1B2Control1 = p(31.9209, 141.5, 0);
+        toShoot4G1G2G1B2Control2 = p(14.4415, 18.9527, 0);
+        toShoot4B1G2B1B2 = p(47, 116, 180);
+        toShoot4B1G2B1B2Control1 = p(8.49, 129.43, 0);
+        toShoot4B1G2B1B2Control2 = p(8, 113, 0);
+        return1ShootG1B2 = p(46.9777, 120.1721, 180);
+        return1ShootG1B2Control1 = p(75.4749, 79.6057, 0);
+        return1ShootG1B2Control2 = p(55.1096, 117.3515, 0);
+        return1ShootB1G2B1B2 = p(44, 19, 90);
+        return1ShootB1G2B1B2Control1 = p(68.46, 101.25, 0);
+        return1ShootB1G2B1B2Control2 = p(66.89, 49.883, 0);
+        flower2Intake = p(14, 47, 180);
+        flower2IntakeControl1G1G2 = p(34, 46, 0);
+        flower2IntakeControl2G1G2 = p(27, 47, 0);
+        flower2IntakeControl1G1B2B1G2B1B2 = p(24.54, 118.15, 0);
+        flower2IntakeControl2G1B2B1G2B1B2 = p(50.34, 44.69, 0);
+        toShoot5 = p(44, 19, 90);
+        toShoot5Control1 = p(44, 50, 0);
+        return2ShootB1B2 = p(47.0477, 120.0562, 90);
+        return2ShootB1B2Control1 = p(80.2369, 73.9847, 0);
+        return2ShootB1B2Control2 = p(53.0607, 118.474, 0);
+        park = p(10, 90, -90);
+        parkControl1 = p(10, 42, 0);
+    }
+
+    // Red point as drawn; blue = mirrored left/right
+    private Pose p(double x, double y, double headingDeg) {
+        return blue ? poseFactory.of(144 - x, y, 180 - headingDeg) : poseFactory.of(x, y, headingDeg);
     }
 
     public Pose start() {
         return start;
     }
 
-    public Path push() {
-        return Paths.line(start, push).constant(push);
+    // ---- All cases ----
+    public Path gardenIntake() {
+        return Paths.line(start, gardenIntake).constant(gardenIntake);
     }
 
-    public Path pushToShoot() {
-        return Paths.curve(push, pushToShootControl1, pushToShoot).tangent();
+    // Hive check 1 happens here (top shooting spot)
+    public Path toShoot2() {
+        return Paths.curve(gardenIntake, toShoot2Control1, toShoot2Control2, toShoot2).reverseTangent();
     }
 
-    public Path intakeGarden() {
-        return Paths.curve(pushToShoot, intakeGardenControl1, intakeGarden).tangent();
+    // The path file turns to 90 at the end of toShoot2
+    public Pose toShoot2Turned() {
+        return toShoot2;
     }
 
-    public Path gardenToShoot2() {
-        return Paths.curve(intakeGarden, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2).reverseTangent();
+    // ---- Good 1 (G1G2, G1B2) ----
+    public Path flower1IntakeG1G2G1B2() {
+        return Paths.line(toShoot2, flower1Intake).constant(flower1Intake);
     }
 
-    public Pose shoot2Turned() {
-        return shoot2Turned;
+    // ---- Bad 1 (B1G2, B1B2) ----
+    public Path return1ShootB1G2B1B2() {
+        return Paths.curve(toShoot2, return1ShootB1G2B1B2Control1, return1ShootB1G2B1B2Control2, return1ShootB1G2B1B2).reverseTangent();
     }
 
-    public Path toFlower1() {
-        // Already at 90 after the shot 2 turn, so no turn needed on the way to flower 1
-        return Paths.line(shoot2Turned, toFlower1).constant(toFlower1);
+    public Pose return1ShootB1G2B1B2Turned() {
+        return return1ShootB1G2B1B2;
     }
 
-    public Path flower1() {
-        return Paths.line(toFlower1, flower1).constant(flower1);
+    // Holds 90 the whole way so the flower arm faces the flower when it arrives
+    public Path flower1IntakeB1G2B1B2() {
+        return Paths.curve(return1ShootB1G2B1B2, flower1IntakeControl1B1G2B1B2, flower1Intake).constant(flower1Intake);
     }
 
-    public Path flower1ToShoot() {
-        return Paths.curve(flower1, flower1ToShootControl1, flower1ToShoot).linear(flower1, flower1ToShoot);
+    // ---- All cases ----
+    public Path toShoot3() {
+        return Paths.line(flower1Intake, toShoot3).reverseTangent();
     }
 
-    public Path toFlower2() {
-        return Paths.curve(flower1ToShoot, toFlower2Control1, toFlower2).tangent();
+    public Path preloadIntake() {
+        return Paths.curve(toShoot3, preloadIntakeControl1, preloadIntakeControl2, preloadIntake).tangent();
     }
 
-    public Path flower2() {
-        return Paths.line(toFlower2, flower2).tangent();
+    // Hive check 2 happens here for G1 cases (bottom shooting spot)
+    public Path toShoot4G1G2G1B2() {
+        return Paths.curve(preloadIntake, toShoot4G1G2G1B2Control1, toShoot4G1G2G1B2Control2, toShoot4G1G2G1B2).reverseTangent();
     }
 
-    public Path flower2ToShoot() {
-        return Paths.curve(flower2, flower2ToShootControl1, flower2ToShoot).reverseTangent();
+    public Path toShoot4B1G2B1B2() {
+        return Paths.curve(preloadIntake, toShoot4B1G2B1B2Control1, toShoot4B1G2B1B2Control2, toShoot4B1G2B1B2).reverseTangent();
     }
 
-    public Path park() {
-        return Paths.curve(flower2ToShoot, parkControl1, park).tangent();
+    // ---- G1B2 only ----
+    public Path return1ShootG1B2() {
+        return Paths.curve(toShoot4G1G2G1B2, return1ShootG1B2Control1, return1ShootG1B2Control2, return1ShootG1B2).tangent();
+    }
+
+    public Pose return1ShootG1B2Turned() {
+        return return1ShootG1B2;
+    }
+
+    // ---- flower2Intake ----
+    public Path flower2IntakeG1G2() {
+        return Paths.curve(toShoot4G1G2G1B2, flower2IntakeControl1G1G2, flower2IntakeControl2G1G2, flower2Intake).tangent();
+    }
+
+    public Path flower2IntakeG1B2() {
+        return Paths.curve(return1ShootG1B2, flower2IntakeControl1G1B2B1G2B1B2, flower2IntakeControl2G1B2B1G2B1B2, flower2Intake).tangent();
+    }
+
+    public Path flower2IntakeB1G2B1B2() {
+        return Paths.curve(toShoot4B1G2B1B2, flower2IntakeControl1G1B2B1G2B1B2, flower2IntakeControl2G1B2B1G2B1B2, flower2Intake).tangent();
+    }
+
+    // Hive check 2 happens here for B1 cases (bottom shooting spot)
+    public Path toShoot5() {
+        return Paths.curve(flower2Intake, toShoot5Control1, toShoot5).reverseTangent();
+    }
+
+    // ---- B1B2 only ----
+    public Path return2ShootB1B2() {
+        return Paths.curve(toShoot5, return2ShootB1B2Control1, return2ShootB1B2Control2, return2ShootB1B2).tangent();
+    }
+
+    public Pose return2ShootB1B2Turned() {
+        return return2ShootB1B2;
+    }
+
+    // ---- park ----
+    public Path parkG1G2G1B2B1G2() {
+        return Paths.curve(toShoot5, parkControl1, park).reverseTangent();
+    }
+
+    public Path parkB1B2() {
+        return Paths.curve(return2ShootB1B2, parkControl1, park).reverseTangent();
     }
 }

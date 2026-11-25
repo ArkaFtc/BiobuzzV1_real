@@ -55,15 +55,16 @@ public class Shooter {
     static Pose RightBlueGoalPose = new Pose(83, 87);
     static Pose LeftBlueGoalPose = new Pose(83, 51);
     static Pose RightRedGoalPose = new Pose(60, 51);
-    static Pose LeftRedGoalPose = new Pose(60, 87);
+    static Pose LeftRedGoalPose = new Pose(57, 84); //60, 87 >> 57, 84
 
 
     // Each alliance has a left and right goal; the shooter aims at whichever is closer
-    public enum Goal{
-        RED (LeftRedGoalPose, RightRedGoalPose),
-        BLUE (LeftBlueGoalPose, RightBlueGoalPose);
+    public enum Goal {
+        RED(LeftRedGoalPose, RightRedGoalPose),
+        BLUE(LeftBlueGoalPose, RightBlueGoalPose);
 
         final Pose left, right;
+
         Goal(Pose left, Pose right) {
             this.left = left;
             this.right = right;
@@ -125,57 +126,59 @@ public class Shooter {
         prevTargetTime = System.nanoTime();
     }
 
-    public double convertAngletoPos(double angle){
-        return (angle*ticksPerDeg+turretMidPos);
+    public double convertAngletoPos(double angle) {
+        return (angle * ticksPerDeg + turretMidPos);
 
     }
-    public void setTurretPos(double pos){
-        turret1.setPosition(pos+diffTurret);
-        turret2.setPosition(pos-diffTurret);
+
+    public void setTurretPos(double pos) {
+        turret1.setPosition(pos + diffTurret);
+        turret2.setPosition(pos - diffTurret);
 
     }
-    public void setGate(boolean open){
-        if (open){
+
+    public void setGate(boolean open) {
+        if (open) {
             gate.setPosition(upperGateOpenPos);
         } else {
             gate.setPosition(upperGateClosedPos);
         }
     }
 
-    public double[] getAngleDistance(Pose currPosition, Alliance alliance){
+    public double[] getAngleDistance(Pose currPosition, Alliance alliance) {
         return getAngleDistance(currPosition, getClosestGoal(currPosition, alliance));
     }
 
-    public Pose getClosestGoal(Pose currPosition, Alliance alliance){
+    public Pose getClosestGoal(Pose currPosition, Alliance alliance) {
         Pose goal = Goal.of(alliance).closest(currPosition);
         return new Pose(goal.x(), goal.y() + goalYOffset);
     }
 
-    public double getLeftGoalDistance(Pose currPosition, Alliance alliance){
+    public double getLeftGoalDistance(Pose currPosition, Alliance alliance) {
         return Goal.of(alliance).distanceToLeft(currPosition);
     }
 
-    public double getRightGoalDistance(Pose currPosition, Alliance alliance){
+    public double getRightGoalDistance(Pose currPosition, Alliance alliance) {
         return Goal.of(alliance).distanceToRight(currPosition);
     }
 
     // "Left" or "Right": the goal aimAtTarget picks (the closer one)
-    public String getAimedGoalSide(Pose currPosition, Alliance alliance){
+    public String getAimedGoalSide(Pose currPosition, Alliance alliance) {
         return Goal.of(alliance).isLeftCloser(currPosition) ? "Left" : "Right";
     }
 
-    public double[] getAngleDistance(Pose currPosition, Pose target){
-        double dx = target.x()-currPosition.x();
-        double dy = target.y()-currPosition.y();
+    public double[] getAngleDistance(Pose currPosition, Pose target) {
+        double dx = target.x() - currPosition.x();
+        double dy = target.y() - currPosition.y();
         double angle = Math.atan2(dy, dx);
         // Turret mid position (0 deg) faces the back of the robot, hence the +180
         double turretAngle = Math.toDegrees(-angle + currPosition.heading()) + 180;
 
-        while (Math.abs(turretAngle)>=180){
-            if (turretAngle>0){
+        while (Math.abs(turretAngle) >= 180) {
+            if (turretAngle > 0) {
                 turretAngle -= 360;
-            }else{
-                turretAngle +=360;
+            } else {
+                turretAngle += 360;
             }
         }
 
@@ -185,11 +188,11 @@ public class Shooter {
     }
 
 
-    public void aimAtTarget(Pose currPosition, Alliance alliance){
+    public void aimAtTarget(Pose currPosition, Alliance alliance) {
         aimAtTarget(currPosition, getClosestGoal(currPosition, alliance));
     }
 
-    public void aimAtTarget(Pose currPosition, Pose target){
+    public void aimAtTarget(Pose currPosition, Pose target) {
         double[] angleDistance = getAngleDistance(currPosition, target);
         double angle = angleDistance[0];
         double distance = angleDistance[1];
@@ -199,20 +202,20 @@ public class Shooter {
     }
 
     // Points only the turret at the closest goal, leaving velocity and hood alone
-    public void aimTurret(Pose currPosition, Alliance alliance){
+    public void aimTurret(Pose currPosition, Alliance alliance) {
         aimTurret(currPosition, alliance, 0);
     }
 
     // posOffset is added to the servo position after aiming (for manual nudging)
-    public void aimTurret(Pose currPosition, Alliance alliance, double posOffset){
+    public void aimTurret(Pose currPosition, Alliance alliance, double posOffset) {
         setTurretAngle(getAngleDistance(currPosition, alliance)[0], posOffset);
     }
 
-    private void setTurretAngle(double angle){
+    private void setTurretAngle(double angle) {
         setTurretAngle(angle, 0);
     }
 
-    private void setTurretAngle(double angle, double posOffset){
+    private void setTurretAngle(double angle, double posOffset) {
         // Clipped so the turret never goes past its physical limits
         setTurretPos(Range.clip(convertAngletoPos(angle) + posOffset, turretLowerBound, turretUpperBound));
     }
@@ -242,7 +245,7 @@ public class Shooter {
             double v = voltageSensor.getVoltage();
             if (v > 0) cachedVoltage = v;
         }
-        power = power * 12/cachedVoltage;
+        power = power * 12 / cachedVoltage;
         shooterCachedMotor1.set(-power);
         shooterCachedMotor2.set(power);
     }
@@ -255,7 +258,7 @@ public class Shooter {
         return shooterCachedMotor2.getCurrentDraw();
     }
 
-    public void setHood(double pos){
+    public void setHood(double pos) {
         hood.setPosition(Range.clip(pos, hoodLowerBound, hoodUpperBound));
     }
 
@@ -286,7 +289,7 @@ public class Shooter {
             outputPower = 0;
         } else {
             outputPower = feedforward.calculate(targetVelocity, accel);
-            if (enablePIDF){
+            if (enablePIDF) {
                 double error = (targetVelocity - currentVelocity);
 
                 if (Math.abs(error) > 60)
@@ -296,13 +299,13 @@ public class Shooter {
             }
         }
 
-        setDirectPower(Math.max(outputPower,0));
+        setDirectPower(Math.max(outputPower, 0));
         gate.update();
         hood.update();
         update_motors();
     }
 
-    public void update_motors(){
+    public void update_motors() {
         shooterCachedMotor1.update();
         shooterCachedMotor2.update();
     }
@@ -315,6 +318,7 @@ public class Shooter {
         double v = shooterEncoder1.getVelocity();
         return invertEncoder ? -v : v;
     }
+
     public static class Tables {
         private static final double[] DISTANCES = {
                 23, 27.7, 33, 38.91, 45.9,
@@ -339,6 +343,7 @@ public class Shooter {
         public static double getShooterVelocity(double distance) {
             return interpolate(distance, DISTANCES, VELOCITY);
         }
+
         private static double interpolate(double x, double[] xValues, double[] yValues) {
 
             // Clamp below smallest value
