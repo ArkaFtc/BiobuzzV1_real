@@ -40,7 +40,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
     public static double velocityTolerance = 40;
     public static double gateOpenMs = 100;
     public static double shootMs = 700;
-    public static double shootFeedPower = 0.75;
+    public static double shootFeedPower = 0.8;
     // The flower arm + dropdown go down BEFORE the robot starts driving to a flower; wait this long for them to finish moving
     public static double flowerArmSettleMs = 500;
     // Flower path completion that counts as "at the flower"; the arm-down timer starts here
@@ -57,6 +57,15 @@ public abstract class AutoNoTurret extends CommandOpMode {
     public static double idleFrontPower = 0.6;
     // Speed cap (in/s) for the garden intake path; max achievable forward is ~71
     public static double gardenIntakeSpeed = 30;
+    // Preload intake path: everything after this point along the curve (0-1) is capped at preloadEndSpeed (in/s)
+    public static double preloadSlowFromT = 0.75;
+    public static double preloadEndSpeed = 20;
+
+    // Shooter settings: first shot (preloads) vs every other shot
+    public static double firstShotVelocity = 1600;
+    public static double firstShotHood = 0.5;
+    public static double shotVelocity = 1500;
+    public static double shotHood = 0.63;
 
     // ---- Hive tip check (Logitech C270 webcam, "Webcam 1"; the SDK has a built-in C270 calibration at 640x480) ----
     // How long the robot stops and looks for the hive's tags at a check spot (moves on sooner if it sees one)
@@ -123,10 +132,17 @@ public abstract class AutoNoTurret extends CommandOpMode {
                         instant(() -> {
                             robot.pose(paths.start());
                             robot.intake.setIntakePower(idleFrontPower);
+                            robot.shooter.setTargetVelocity(firstShotVelocity);
+                            robot.shooter.setHood(firstShotHood);
                         }),
 
                         // Preloads: shoot all 4 from the start spot
                         shoot(),
+                        // Every shot after the first
+                        instant(() -> {
+                            robot.shooter.setTargetVelocity(shotVelocity);
+                            robot.shooter.setHood(shotHood);
+                        }),
 
                         // Garden (intake stays on the whole auto)
                         intakeOn(),
@@ -145,7 +161,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                 flowerReturn(paths.toShoot3(), flower1ReturnDropCompletion),
                                 shoot(),
                                 intakeOn(),
-                                drive(paths.preloadIntake()),
+                                drive(paths.preloadIntake(preloadSlowFromT, preloadEndSpeed)),
                                 drive(paths.toShoot4G1G2G1B2()),
 
                                 // Hive check 2 (bottom spot, lower basket)
@@ -182,7 +198,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                 flowerReturn(paths.toShoot3(), flower1ReturnDropCompletion),
                                 shoot(),
                                 intakeOn(),
-                                drive(paths.preloadIntake()),
+                                drive(paths.preloadIntake(preloadSlowFromT, preloadEndSpeed)),
                                 drive(paths.toShoot4B1G2B1B2()),
                                 shoot(),
                                 intakeOn(),
@@ -211,8 +227,8 @@ public abstract class AutoNoTurret extends CommandOpMode {
                 ),
                 infinite(() -> {
                     robot.update();
-                    // Turret and flywheel velocity/hood always track the closest goal, same as tele
-                    robot.shooter.aimAtTarget(robot.pose(), alliance);
+                    // Turret always tracks the closest goal; flywheel velocity/hood are not set here
+                    robot.shooter.aimTurret(robot.pose(), alliance);
                     telemetry.addData("turret angle (deg)", robot.shooter.getAngleDistance(robot.pose(), alliance)[0]);
                     if (intaking)
                         robot.intake.setTransferPower(robot.intake.hasBack2() ? 0 : 1);

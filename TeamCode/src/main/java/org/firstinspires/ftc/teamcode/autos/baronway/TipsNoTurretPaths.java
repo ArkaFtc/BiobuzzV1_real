@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 
 // Paths for AutoNoTurret, from the four .pp.json files (good1good2, good1bad2, bad1good2, bad1bad2).
@@ -57,7 +58,7 @@ public class TipsNoTurretPaths {
         return1ShootB1G2B1B2 = p(44, 19, 90);
         return1ShootB1G2B1B2Control1 = p(68.46, 101.25, 0);
         return1ShootB1G2B1B2Control2 = p(66.89, 49.883, 0);
-        flower2Intake = p(14, 47, 180);
+        flower2Intake = p(12, 47, 180);
         flower2IntakeControl1G1G2 = p(34, 46, 0);
         flower2IntakeControl2G1G2 = p(27, 47, 0);
         flower2IntakeControl1G1B2B1G2B1B2 = p(24.54, 118.15, 0);
@@ -121,6 +122,24 @@ public class TipsNoTurretPaths {
 
     public Path preloadIntake() {
         return Paths.curve(toShoot3, preloadIntakeControl1, preloadIntakeControl2, preloadIntake).tangent();
+    }
+
+    // Same curve as preloadIntake(), split at splitT (0-1 along the curve) so the end can be driven
+    // slower: everything after splitT is capped at endSpeed (in/s). Both pieces trace the exact same curve.
+    public Path preloadIntake(double splitT, double endSpeed) {
+        Pose[] pts = {toShoot3, preloadIntakeControl1, preloadIntakeControl2, preloadIntake};
+        // De Casteljau split of the cubic bezier
+        Pose a = lerp(pts[0], pts[1], splitT), b = lerp(pts[1], pts[2], splitT), c = lerp(pts[2], pts[3], splitT);
+        Pose d = lerp(a, b, splitT), e = lerp(b, c, splitT);
+        Pose mid = lerp(d, e, splitT);
+        Path first = Paths.curve(pts[0], a, d, mid).tangent();
+        Path end = Paths.curve(mid, e, c, pts[3]).tangent()
+                .with(Constants.foresightConfig.maxPathSpeed.at(endSpeed));
+        return Paths.path(first, end);
+    }
+
+    private static Pose lerp(Pose p, Pose q, double t) {
+        return new Pose(p.x() + (q.x() - p.x()) * t, p.y() + (q.y() - p.y()) * t);
     }
 
     // Hive check 2 happens here for G1 cases (bottom shooting spot)
