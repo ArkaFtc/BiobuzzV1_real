@@ -211,6 +211,13 @@ public class Shooter {
         setTurretAngle(getAngleDistance(currPosition, alliance)[0], posOffset);
     }
 
+    // Same as aimTurret, but adds leftOffsetDeg / rightOffsetDeg to the turret angle depending on which goal is aimed at
+    public void aimTurretWithGoalOffsets(Pose currPosition, Alliance alliance, double leftOffsetDeg, double rightOffsetDeg) {
+        double angle = getAngleDistance(currPosition, alliance)[0];
+        angle += Goal.of(alliance).isLeftCloser(currPosition) ? leftOffsetDeg : rightOffsetDeg;
+        setTurretAngle(angle);
+    }
+
     private void setTurretAngle(double angle) {
         setTurretAngle(angle, 0);
     }

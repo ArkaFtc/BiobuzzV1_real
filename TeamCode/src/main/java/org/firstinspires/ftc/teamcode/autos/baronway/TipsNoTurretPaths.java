@@ -4,6 +4,7 @@ import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
@@ -28,7 +29,7 @@ public class TipsNoTurretPaths {
     private final Pose flower2Intake;
     private final Pose flower2IntakeControl1G1G2, flower2IntakeControl2G1G2;
     private final Pose flower2IntakeControl1G1B2B1G2B1B2, flower2IntakeControl2G1B2B1G2B1B2;
-    private final Pose toShoot5, toShoot5Control1;
+    private final Pose toShoot5, toShoot5Control1, toShoot5Segment2Start;
     private final Pose return2ShootB1B2, return2ShootB1B2Control1, return2ShootB1B2Control2;
     private final Pose park, parkControl1;
 
@@ -43,7 +44,7 @@ public class TipsNoTurretPaths {
         flower1Intake = p(47.0147, 130.0272, 90);
         flower1IntakeControl1B1G2B1B2 = p(17.9707, 68.6686, 0);
         toShoot3 = p(47, 116, 90);
-        preloadIntake = p(8, 99.5, -90);
+        preloadIntake = p(6, 97.5, -90);
         preloadIntakeControl1 = p(8, 113, 0);
         preloadIntakeControl2 = p(8.49, 129.4294, 0);
         toShoot4G1G2G1B2 = p(52.3842, 18.872, 180);
@@ -63,8 +64,9 @@ public class TipsNoTurretPaths {
         flower2IntakeControl2G1G2 = p(27, 47, 0);
         flower2IntakeControl1G1B2B1G2B1B2 = p(24.54, 118.15, 0);
         flower2IntakeControl2G1B2B1G2B1B2 = p(50.34, 44.69, 0);
-        toShoot5 = p(44, 19, 90);
+        toShoot5 = p(40, 19, 110);
         toShoot5Control1 = p(44, 50, 0);
+        toShoot5Segment2Start = p(44, 19, 110.4011);
         return2ShootB1B2 = p(47.0477, 120.0562, 90);
         return2ShootB1B2Control1 = p(80.2369, 73.9847, 0);
         return2ShootB1B2Control2 = p(53.0607, 118.474, 0);
@@ -175,7 +177,10 @@ public class TipsNoTurretPaths {
 
     // Hive check 2 happens here for B1 cases (bottom shooting spot)
     public Path toShoot5() {
-        return Paths.curve(flower2Intake, toShoot5Control1, toShoot5).reverseTangent();
+        // Reverse tangent for most of the path, then blend the heading to toShoot5's heading at the end
+        return Paths.curve(flower2Intake, toShoot5Control1, toShoot5).heading(Interpolator.piecewise()
+                .until(0.6993, Interpolator.tangent.reverse())
+                .until(1, Interpolator.linear(toShoot5Segment2Start, toShoot5)));
     }
 
     // ---- B1B2 only ----

@@ -61,11 +61,20 @@ public abstract class AutoNoTurret extends CommandOpMode {
     public static double preloadSlowFromT = 0.75;
     public static double preloadEndSpeed = 20;
 
-    // Shooter settings: first shot (preloads) vs every other shot
-    public static double firstShotVelocity = 1600;
-    public static double firstShotHood = 0.5;
-    public static double shotVelocity = 1500;
-    public static double shotHood = 0.63;
+    // Turret angle offset (deg) added when aiming at the left / right goal (auto only)
+    public static double leftGoalTurretOffsetDeg = 6;
+    public static double rightGoalTurretOffsetDeg = -4;
+
+    // Shooter velocity / hood for each shooting spot (set when the robot starts driving to that spot)
+    public static double startVelo = 1560, startHood = 0.44;
+    public static double toShoot2Velo = 1440, toShoot2Hood = 0.62;
+    public static double return1ShootB1G2B1B2Velo = 1450, return1ShootB1G2B1B2Hood = 0.54;
+    public static double toShoot3Velo = 1420, toShoot3Hood = 0.62;
+    public static double toShoot4G1G2G1B2Velo = 1460, toShoot4G1G2G1B2Hood = 0.64;
+    public static double return1ShootG1B2Velo = 1420, return1ShootG1B2Hood = 0.58;
+    public static double toShoot4B1G2B1B2Velo = 1410, toShoot4B1G2B1B2Hood = 0.64;
+    public static double toShoot5Velo = 1440, toShoot5Hood = 0.54;
+    public static double return2ShootB1B2Velo = 1420, return2ShootB1B2Hood = 0.58;
 
     // ---- Hive tip check (Logitech C270 webcam, "Webcam 1"; the SDK has a built-in C270 calibration at 640x480) ----
     // How long the robot stops and looks for the hive's tags at a check spot (moves on sooner if it sees one)
@@ -132,21 +141,16 @@ public abstract class AutoNoTurret extends CommandOpMode {
                         instant(() -> {
                             robot.pose(paths.start());
                             robot.intake.setIntakePower(idleFrontPower);
-                            robot.shooter.setTargetVelocity(firstShotVelocity);
-                            robot.shooter.setHood(firstShotHood);
                         }),
+                        shotSettings(startVelo, startHood),
 
                         // Preloads: shoot all 4 from the start spot
                         shoot(),
-                        // Every shot after the first
-                        instant(() -> {
-                            robot.shooter.setTargetVelocity(shotVelocity);
-                            robot.shooter.setHood(shotHood);
-                        }),
 
                         // Garden (intake stays on the whole auto)
                         intakeOn(),
                         drive(paths.gardenIntake().with(Constants.foresightConfig.maxPathSpeed.at(gardenIntakeSpeed))),
+                        shotSettings(toShoot2Velo, toShoot2Hood),
                         drive(paths.toShoot2()),
                         turnTo(paths.toShoot2Turned()),
 
@@ -158,10 +162,12 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                 shoot(),
                                 intakeOn(),
                                 flowerDrive(paths.flower1IntakeG1G2G1B2()),
+                                shotSettings(toShoot3Velo, toShoot3Hood),
                                 flowerReturn(paths.toShoot3(), flower1ReturnDropCompletion),
                                 shoot(),
                                 intakeOn(),
                                 drive(paths.preloadIntake(preloadSlowFromT, preloadEndSpeed)),
+                                shotSettings(toShoot4G1G2G1B2Velo, toShoot4G1G2G1B2Hood),
                                 drive(paths.toShoot4G1G2G1B2()),
 
                                 // Hive check 2 (bottom spot, lower basket)
@@ -175,6 +181,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                 )),
                                 // G1B2: go back to the top spot to shoot, then flower 2
                                 onlyIf(() -> !hive2Good, sequential(
+                                        shotSettings(return1ShootG1B2Velo, return1ShootG1B2Hood),
                                         drive(paths.return1ShootG1B2()),
                                         turnTo(paths.return1ShootG1B2Turned()),
                                         shoot(),
@@ -182,6 +189,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                         flowerDrive(paths.flower2IntakeG1B2())
                                 )),
 
+                                shotSettings(toShoot5Velo, toShoot5Hood),
                                 flowerReturn(paths.toShoot5(), flower2ReturnDropCompletion),
                                 shoot(),
                                 intakeOn(),
@@ -190,19 +198,23 @@ public abstract class AutoNoTurret extends CommandOpMode {
 
                         // ===== BAD 1: drive to the bottom spot and shoot there =====
                         onlyIf(() -> !hive1Good, sequential(
+                                shotSettings(return1ShootB1G2B1B2Velo, return1ShootB1G2B1B2Hood),
                                 drive(paths.return1ShootB1G2B1B2()),
                                 turnTo(paths.return1ShootB1G2B1B2Turned()),
                                 shoot(),
                                 intakeOn(),
                                 flowerDrive(paths.flower1IntakeB1G2B1B2()),
+                                shotSettings(toShoot3Velo, toShoot3Hood),
                                 flowerReturn(paths.toShoot3(), flower1ReturnDropCompletion),
                                 shoot(),
                                 intakeOn(),
                                 drive(paths.preloadIntake(preloadSlowFromT, preloadEndSpeed)),
+                                shotSettings(toShoot4B1G2B1B2Velo, toShoot4B1G2B1B2Hood),
                                 drive(paths.toShoot4B1G2B1B2()),
                                 shoot(),
                                 intakeOn(),
                                 flowerDrive(paths.flower2IntakeB1G2B1B2()),
+                                shotSettings(toShoot5Velo, toShoot5Hood),
                                 flowerReturn(paths.toShoot5(), flower2ReturnDropCompletion),
 
                                 // Hive check 2 (bottom spot, lower basket)
@@ -217,6 +229,7 @@ public abstract class AutoNoTurret extends CommandOpMode {
                                 // B1B2: go to the top spot to shoot, then park
                                 onlyIf(() -> !hive2Good, sequential(
                                         intakeOn(),
+                                        shotSettings(return2ShootB1B2Velo, return2ShootB1B2Hood),
                                         drive(paths.return2ShootB1B2()),
                                         turnTo(paths.return2ShootB1B2Turned()),
                                         shoot(),
@@ -228,8 +241,13 @@ public abstract class AutoNoTurret extends CommandOpMode {
                 infinite(() -> {
                     robot.update();
                     // Turret always tracks the closest goal; flywheel velocity/hood are not set here
-                    robot.shooter.aimTurret(robot.pose(), alliance);
+                    robot.shooter.aimTurretWithGoalOffsets(robot.pose(), alliance,
+                            leftGoalTurretOffsetDeg, rightGoalTurretOffsetDeg);
                     telemetry.addData("turret angle (deg)", robot.shooter.getAngleDistance(robot.pose(), alliance)[0]);
+                    String aimedSide = robot.shooter.getAimedGoalSide(robot.pose(), alliance);
+                    telemetry.addData("aimed goal", aimedSide);
+                    telemetry.addData("turret offset (deg)",
+                            aimedSide.equals("Left") ? leftGoalTurretOffsetDeg : rightGoalTurretOffsetDeg);
                     if (intaking)
                         robot.intake.setTransferPower(robot.intake.hasBack2() ? 0 : 1);
 
@@ -297,6 +315,14 @@ public abstract class AutoNoTurret extends CommandOpMode {
                     return Math.abs(error) < turnToleranceDeg;
                 }).raceWith(waitMs(turnTimeoutMs))
         );
+    }
+
+    // Sets the flywheel target and hood for the next shot; placed right before the drive to that spot
+    CommandBuilder shotSettings(double velo, double hood) {
+        return instant(() -> {
+            robot.shooter.setTargetVelocity(velo);
+            robot.shooter.setHood(hood);
+        });
     }
 
     CommandBuilder intakeOn() {
